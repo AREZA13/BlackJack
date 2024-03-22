@@ -2,7 +2,7 @@
 
 namespace App\Game;
 
-class Game
+class Deck
 {
     private array $fullDeck;
 
