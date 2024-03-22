@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Game\Deck;
+use App\Game\Nominal;
+use App\Game\Suit;
 
 class GameController extends Controller
 {
@@ -10,6 +12,7 @@ class GameController extends Controller
     {
         $testClass = new Deck();
         $newCard = $testClass->getOneCardFullShuffledDeckOnTheTable();
-        var_dump("$newCard->nominal of $newCard->suit");
+
+        var_dump("{$newCard->nominal->name} of {$newCard->suit->name}");
     }
 }

@@ -7,15 +7,15 @@ class Deck
     /** @var Card[] $fullDeck */
     private array $fullDeck;
 
-    public function __construct()
+    public function __construct(array $fullDeck)
     {
-        $this->fullDeck = self::fullShuffledDeck();
+        $this->fullDeck = $fullDeck;
     }
 
-    private function fullShuffledDeck(): array
+    public static function fullShuffledDeck(): self
     {
-        $suit = ["heart", "club", "diamond", "spades"];
-        $nominal = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"];
+        $suit = [Suit::Hearts, Suit::Clubs, Suit::Diamonds, Suit::Spades];
+        $nominal = [Nominal::Ace, Nominal::Two, Nominal::Three, Nominal::Four, Nominal::Five, Nominal::Six, Nominal::Seven, Nominal::Eight, Nominal::Nine, Nominal::Ten, Nominal::Jack, Nominal::Queen, Nominal::King];
         $fullDeck = [];
         foreach ($suit as $oneOfSuit) {
             foreach ($nominal as $oneOfNominal) {
@@ -23,7 +23,7 @@ class Deck
             }
         }
         shuffle($fullDeck);
-        return $fullDeck;
+        return new self($fullDeck);
     }
 
     public function getOneCardFullShuffledDeckOnTheTable(): Card
