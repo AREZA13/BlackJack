@@ -9,6 +9,7 @@ class GameController extends Controller
     public function index(): void
     {
         $testClass = new Deck();
-        var_dump($testClass->getOneCardFullShuffledDeckOnTheTable());
+        $newCard = $testClass->getOneCardFullShuffledDeckOnTheTable();
+        var_dump("$newCard->nominal of $newCard->suit");
     }
 }

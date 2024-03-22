@@ -4,6 +4,7 @@ namespace App\Game;
 
 class Deck
 {
+    /** @var Card[] $fullDeck */
     private array $fullDeck;
 
     public function __construct()
@@ -18,14 +19,14 @@ class Deck
         $fullDeck = [];
         foreach ($suit as $oneOfSuit) {
             foreach ($nominal as $oneOfNominal) {
-                $fullDeck[] = "$oneOfNominal of $oneOfSuit";
+                $fullDeck[] = new Card($oneOfSuit, $oneOfNominal);
             }
         }
         shuffle($fullDeck);
         return $fullDeck;
     }
 
-    public function getOneCardFullShuffledDeckOnTheTable(): string
+    public function getOneCardFullShuffledDeckOnTheTable(): Card
     {
         return array_pop($this->fullDeck);
     }
