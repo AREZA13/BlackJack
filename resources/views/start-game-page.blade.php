@@ -5,11 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @vite('resources/css/app.css')
     <title>@yield('title')</title>
-    <script>
-        window.myToken =  <?php echo json_encode([
-            'csrfToken' => csrf_token(),
-        ]); ?>
-    </script>
 </head>
 <body>
 @if ($errors->any())
@@ -20,6 +15,7 @@
         @endforeach
     </div>
 @endif
+<a href="{{route('get-two-cards-game-page')}}"><button type="button" class="btn btn-primary">Start game</button></a>
 @yield('content')
 </body>
 <footer>

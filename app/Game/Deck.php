@@ -33,13 +33,4 @@ class Deck
     {
         return array_pop($this->fullDeck);
     }
-
-    /**
-     * built from saved session
-     */
-    public static function buildFromDeck($fullDeck): self {
-        return new self ($fullDeck);
-    }
-
-
 }

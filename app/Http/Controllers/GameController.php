@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Game\Card;
 use App\Game\Deck;
-use App\Game\Nominal;
-use App\Game\Suit;
 use Illuminate\Http\Request;
 
 
@@ -13,23 +12,23 @@ class GameController extends Controller
 {
     public function index(Request $request): void
     {
-        session_start();
+        $deck = (!$request->session()->has('fullDeck'))
+            ? Deck::fullShuffledDeck()
+            : $request->session()->get('fullDeck');
 
-        if (!$request->session()->has('fullDeck')) {
-            echo 'huy1';
-            $deck = Deck::fullShuffledDeck();
+        $pocketCards = [
+            $deck->getOneCardFullShuffledDeckOnTheTable(),
+            $deck->getOneCardFullShuffledDeckOnTheTable()
+        ];
+
+        /** @var Card $card */
+        foreach ($pocketCards as $card) {
+            var_dump($card->getAsString());
         }
-        else {
-            $deck = $request->session()->get('fullDeck');
-            echo 'huy2';
-//            Deck::buildFromDeck($deck);
-        }
-//        $request->session()->put('fullDeck', $deck);
+
+        $request->session()->put('fullDeck', $deck);
+        $request->session()->save();
         dd($deck);
-
-//        $newCard = $deck->getOneCardFullShuffledDeckOnTheTable();
-//        var_dump("{$newCard->nominal->name} of {$newCard->suit->name}");
-//
     }
 }
 

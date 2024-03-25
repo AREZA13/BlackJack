@@ -10,4 +10,9 @@ readonly class Card
     )
     {
     }
+
+    public function getAsString(): string
+    {
+        return "{$this->nominal->name} of {$this->suit->name}";
+    }
 }
