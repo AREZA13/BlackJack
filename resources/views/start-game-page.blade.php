@@ -20,5 +20,8 @@
 </body>
 <footer>
     @yield('footer')
+    <a href="/gameDelete">
+        <button type="button">Start Over</button>
+    </a>
 </footer>
 </html>

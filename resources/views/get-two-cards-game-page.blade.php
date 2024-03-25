@@ -1,7 +1,9 @@
 @extends('start-game-page')
 @section('content')
-<button type="button">Start Game</button>
-<a href="{{route('get-two-cards-game-page')}}"><button type="button">Primary</button></a>
+@foreach($pocketCards as $card) {{
+var_dump($card->getAsString())
+}}
+@endforeach
 </body>
 <footer>
     @yield('footer')

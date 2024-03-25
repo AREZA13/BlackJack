@@ -15,4 +15,9 @@ readonly class Card
     {
         return "{$this->nominal->name} of {$this->suit->name}";
     }
+
+    public function getAsTwoLettersString(): string
+    {
+        return "{$this->nominal->getAsOneLetter()}{$this->suit->getAsOneLetter()}";
+    }
 }
