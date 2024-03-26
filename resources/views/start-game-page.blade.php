@@ -15,11 +15,15 @@
         @endforeach
     </div>
 @endif
-<a href="{{route('get-two-cards-game-page')}}"><button type="button" class="btn btn-primary">Start game</button></a>
+<a href="{{route('get-two-cards-game-page')}}">
+    <button type="button" class="btn btn-primary">Start game</button>
+</a>
+<br>
 @yield('content')
 </body>
 <footer>
     @yield('footer')
+    <br>
     <a href="/game-delete">
         <button type="button">Start Over</button>
     </a>

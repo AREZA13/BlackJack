@@ -25,24 +25,29 @@ class GameController extends Controller
             $deck->getOneCardFullShuffledDeckOnTheTable(),
         ];
 
+        $gamerPoints = $this->calcGamerCards($pocketCards);
+        $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
+
         $request->session()->put('fullDeck', $deck);
         $request->session()->put('pocketCards', $pocketCards);
         $request->session()->save();
 
-        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards]);
-//        dd($deck);
+        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability]);
     }
 
     public function oneMoreCardPage(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
+
         $pocketCards = $request->session()->get('pocketCards');
+        $gamerPoints = $this->calcGamerCards($pocketCards);
+        $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
         /** @var Deck $deck */
         $deck = $request->session()->get('fullDeck');
         /** @var Card[] $pocketCards */
         $pocketCards[] = $deck->getOneCardFullShuffledDeckOnTheTable();
         $request->session()->put('pocketCards', $pocketCards);
         $request->session()->save();
-        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards]);
+        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability]);
     }
 
     public function removeSession(Request $request): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
@@ -51,9 +56,9 @@ class GameController extends Controller
         return redirect("/start-game-page");
     }
 
-    public function calcGamerCards(Request $request): int
+    /** @param Card[] $pocketCards */
+    public function calcGamerCards(array $pocketCards): int
     {
-        $pocketCards = $request->session()->get('pocketCards');
         $sum = 0;
         foreach ($pocketCards as $card) {
             $sum += $card->getAsPoints();
@@ -63,7 +68,8 @@ class GameController extends Controller
 
     public function generateRandomDealerScore(Request $request): string
     {
-        $gamerScore = $this->calcGamerCards($request);
+        $pocketCards = $request->session()->get('pocketCards');
+        $gamerScore = $this->calcGamerCards($pocketCards);
 
         if ($gamerScore > 21) {
             return "YOU LOOSE" . " <br> Your score " . $gamerScore;
@@ -79,6 +85,23 @@ class GameController extends Controller
         } else {
             return "Dealer win with " . $dealerScore . "  score  <br>" . "Your score is " . $gamerScore;
         }
+    }
+
+    public function probabilityOfFailScores(int $gamerPoints): int
+    {
+        return match ($gamerPoints) {
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 => 0,
+            12 => 31,
+            20 => 92,
+            19 => 85,
+            18 => 77,
+            17 => 69,
+            16 => 62,
+            15 => 58,
+            14 => 56,
+            13 => 39,
+            default => 100,
+        };
     }
 }
 

@@ -11,7 +11,7 @@ Route::get('/start-game-page', [\App\Http\Controllers\GameController::class, 'ho
 Route::get('/game', [\App\Http\Controllers\GameController::class, 'index']
 )->name('get-two-cards-game-page');
 
-Route::get('/more-card', [\App\Http\Controllers\GameController::class, 'oneMoreCardPage']
+Route::get('/more-card', [\App\Http\Controllers\GameController::class, 'oneMoreCardPage'],
 )->name('one-more-card-page');
 
 Route::get('/stop-game', [\App\Http\Controllers\GameController::class, 'generateRandomDealerScore'])
