@@ -7,7 +7,11 @@
 @yield('content')
 <br>
 
-<br>
+<button type="button" disabled class="btn btn-primary">
+    Your scores <span class="badge badge-light"> {{ $gamerPoints }}</span>
+    <span class="sr-only"></span>
+</button>
+
 <a href="{{ route('one-more-card-page') }}">
     <button type="button" class="btn btn-danger">One more card</button>
 </a><br>

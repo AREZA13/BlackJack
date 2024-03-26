@@ -15,10 +15,12 @@
         @endforeach
     </div>
 @endif
+@if (isset($message))
+    {!! $message !!} <br>
+@endif
 <a href="{{route('get-two-cards-game-page')}}">
     <button type="button" class="btn btn-primary">Start game</button>
 </a>
-<br>
 @yield('content')
 </body>
 <footer>

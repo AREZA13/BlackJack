@@ -31,21 +31,21 @@ class GameController extends Controller
         $request->session()->put('fullDeck', $deck);
         $request->session()->put('pocketCards', $pocketCards);
         $request->session()->save();
-        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability]);
+        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability, 'gamerPoints' => $gamerPoints]);
     }
 
     public function oneMoreCardPage(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
         $pocketCards = $request->session()->get('pocketCards');
-        $gamerPoints = $this->calcGamerCards($pocketCards);
-        $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
         /** @var Deck $deck */
         $deck = $request->session()->get('fullDeck');
         /** @var Card[] $pocketCards */
         $pocketCards[] = $deck->getOneCardFullShuffledDeckOnTheTable();
+        $gamerPoints = $this->calcGamerCards($pocketCards);
+        $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
         $request->session()->put('pocketCards', $pocketCards);
         $request->session()->save();
-        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability]);
+        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability, 'gamerPoints' => $gamerPoints]);
     }
 
     public function removeSession(Request $request): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
@@ -67,21 +67,27 @@ class GameController extends Controller
     public function generateRandomDealerScore(Request $request): string
     {
         $pocketCards = $request->session()->get('pocketCards');
+        $message = $this->endGameMessage($pocketCards);
+        return view('start-game-page', ['message' => $message]);
+    }
+
+    private function endGameMessage(array $pocketCards): string
+    {
         $gamerScore = $this->calcGamerCards($pocketCards);
 
         if ($gamerScore > 21) {
-            return "YOU LOOSE" . " <br> Your score " . $gamerScore;
+            return "YOU LOOSE  <br> Your score " . $gamerScore;
         }
 
         $dealerScore = rand(15, 22);
 
         if ($dealerScore < $gamerScore) {
-            return "Dealer has " . $dealerScore . " <br> YOU WIN" . " <br> Your score " . $gamerScore;
+            return "Dealer has " . $dealerScore . "<br>  YOU WIN" . " Your score " . $gamerScore;
         }
         if ($dealerScore === 21) {
             return "Dealer wins with BlackJack";
         } else {
-            return "Dealer win with " . $dealerScore . "  score  <br>" . "Your score is " . $gamerScore;
+            return "Dealer win with " . $dealerScore . " score  <br>" . "Your score is " . $gamerScore;
         }
     }
 
