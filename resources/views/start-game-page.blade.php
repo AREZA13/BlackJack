@@ -20,7 +20,7 @@
 </body>
 <footer>
     @yield('footer')
-    <a href="/gameDelete">
+    <a href="/game-delete">
         <button type="button">Start Over</button>
     </a>
 </footer>
