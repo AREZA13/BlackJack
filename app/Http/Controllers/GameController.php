@@ -31,13 +31,11 @@ class GameController extends Controller
         $request->session()->put('fullDeck', $deck);
         $request->session()->put('pocketCards', $pocketCards);
         $request->session()->save();
-
         return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability]);
     }
 
     public function oneMoreCardPage(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
-
         $pocketCards = $request->session()->get('pocketCards');
         $gamerPoints = $this->calcGamerCards($pocketCards);
         $gamerProbability = $this->probabilityOfFailScores($gamerPoints);

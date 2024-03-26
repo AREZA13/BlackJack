@@ -5,7 +5,7 @@ namespace App\Game;
 readonly class Card
 {
     public function __construct(
-        public Suit $suit,
+        public Suit    $suit,
         public Nominal $nominal,
     )
     {
@@ -21,9 +21,14 @@ readonly class Card
         return "{$this->nominal->getAsOneLetter()}{$this->suit->getAsOneLetter()}";
     }
 
+    public function getAsImagePath(): string
+    {
+        return "../../images/card/{$this->getAsTwoLettersString()}.png";
+    }
+
     public function getAsPoints(): int
     {
-        return match($this->nominal) {
+        return match ($this->nominal) {
             Nominal::Ace => 11,
             Nominal::Two => 2,
             Nominal::Three => 3,
