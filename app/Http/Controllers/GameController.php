@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Game\Card;
 use App\Game\Deck;
-use App\Game\Suit;
 use Illuminate\Http\Request;
-
 
 class GameController extends Controller
 
@@ -16,7 +14,7 @@ class GameController extends Controller
         return view('start-game-page');
     }
 
-    public function index(Request $request)
+    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
         $deck = (!$request->session()->has('fullDeck'))
             ? Deck::fullShuffledDeck()
@@ -25,18 +23,62 @@ class GameController extends Controller
         $pocketCards = [
             $deck->getOneCardFullShuffledDeckOnTheTable(),
             $deck->getOneCardFullShuffledDeckOnTheTable(),
-                    ];
+        ];
 
         $request->session()->put('fullDeck', $deck);
+        $request->session()->put('pocketCards', $pocketCards);
         $request->session()->save();
 
         return view('get-two-cards-game-page', ['pocketCards' => $pocketCards]);
 //        dd($deck);
     }
+
+    public function oneMoreCardPage(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+    {
+        $pocketCards = $request->session()->get('pocketCards');
+        /** @var Deck $deck */
+        $deck = $request->session()->get('fullDeck');
+        /** @var Card[] $pocketCards */
+        $pocketCards[] = $deck->getOneCardFullShuffledDeckOnTheTable();
+        $request->session()->put('pocketCards', $pocketCards);
+        $request->session()->save();
+        return view('get-two-cards-game-page', ['pocketCards' => $pocketCards]);
+    }
+
     public function removeSession(Request $request): \Illuminate\Foundation\Application|\Illuminate\Routing\Redirector|\Illuminate\Http\RedirectResponse|\Illuminate\Contracts\Foundation\Application
     {
         $request->session()->forget('fullDeck');
         return redirect("/start-game-page");
+    }
+
+    public function calcGamerCards(Request $request): int
+    {
+        $pocketCards = $request->session()->get('pocketCards');
+        $sum = 0;
+        foreach ($pocketCards as $card) {
+            $sum += $card->getAsPoints();
+        }
+        return $sum;
+    }
+
+    public function generateRandomDealerScore(Request $request): string
+    {
+        $gamerScore = $this->calcGamerCards($request);
+
+        if ($gamerScore > 21) {
+            return "YOU LOOSE" . " <br> Your score " . $gamerScore;
+        }
+
+        $dealerScore = rand(15, 22);
+
+        if ($dealerScore < $gamerScore) {
+            return "Dealer has " . $dealerScore . " <br> YOU WIN" . " <br> Your score " . $gamerScore;
+        }
+        if ($dealerScore === 21) {
+            return "Dealer wins with BlackJack";
+        } else {
+            return "Dealer win with " . $dealerScore . "  score  <br>" . "Your score is " . $gamerScore;
+        }
     }
 }
 
