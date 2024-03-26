@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 class GameController extends Controller
 
 {
-    public function home()
+    public function home(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
-        return view('start-game-page');
+        return view('start-page');
     }
 
     public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
@@ -68,7 +68,7 @@ class GameController extends Controller
     {
         $pocketCards = $request->session()->get('pocketCards');
         $message = $this->endGameMessage($pocketCards);
-        return view('start-game-page', ['message' => $message]);
+        return view('finish-page', ['message' => $message]);
     }
 
     private function endGameMessage(array $pocketCards): string

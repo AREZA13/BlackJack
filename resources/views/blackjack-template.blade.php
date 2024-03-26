@@ -15,19 +15,9 @@
         @endforeach
     </div>
 @endif
-@if (isset($message))
-    {!! $message !!} <br>
-@endif
-<a href="{{route('get-two-cards-game-page')}}">
-    <button type="button" class="btn btn-primary">Start game</button>
-</a>
 @yield('content')
 </body>
 <footer>
     @yield('footer')
-    <br>
-    <a href="/game-delete">
-        <button type="button" class="btn btn-warning">Start Over</button>
-    </a>
 </footer>
 </html>
