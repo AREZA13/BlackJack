@@ -20,4 +20,20 @@ readonly class Card
     {
         return "{$this->nominal->getAsOneLetter()}{$this->suit->getAsOneLetter()}";
     }
+
+    public function getAsPoints(): int
+    {
+        return match($this->nominal) {
+            Nominal::Ace => 11,
+            Nominal::Two => 2,
+            Nominal::Three => 3,
+            Nominal::Four => 4,
+            Nominal::Five => 5,
+            Nominal::Six => 6,
+            Nominal::Seven => 7,
+            Nominal::Eight => 8,
+            Nominal::Nine => 9,
+            Nominal::Ten, Nominal::Jack, Nominal::Queen, Nominal::King => 10,
+        };
+    }
 }
