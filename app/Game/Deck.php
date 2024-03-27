@@ -9,12 +9,9 @@ use function PHPUnit\Framework\isEmpty;
 
 class Deck
 {
-    /** @var Card[] $fullDeck */
-    private array $fullDeck;
-
-    public function __construct(array $fullDeck)
+    /** @param Card[] $deck */
+    public function __construct(private array $deck)
     {
-        $this->fullDeck = $fullDeck;
     }
 
     public static function fullShuffledDeck(): self
@@ -31,9 +28,14 @@ class Deck
         return new self($fullDeck);
     }
 
+    public function getCardsCount(): int
+    {
+        return count($this->deck);
+    }
+
     public function getOneCardFullShuffledDeckOnTheTable(): Card
     {
-        return array_pop($this->fullDeck);
+        return array_pop($this->deck);
     }
 
 }
