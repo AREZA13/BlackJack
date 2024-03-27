@@ -1,5 +1,13 @@
 <?php /** @var App\Game\Card[] $pocketCards */ ?>
 @extends('blackjack/template')
+<style>
+    body {
+        background-image: url('https://hippodromecasino.com/wp-content/uploads/2019/11/blackjack.jpg');
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: 100% 100%;
+    }
+</style>
 <div style="text-align: center;">
     <button type="button" disabled class="btn btn-primary">
         Your scores <span class="badge badge-light"> {{ $gamerPoints }}</span>
@@ -29,7 +37,9 @@
             </a>
             <br>
             <br>
-            Probability of next being more than {{ 21 - $gamerPoints }} scores is <span style="color: red;">{{ $gamerProbability }}% </span>
+            <button type="button" disabled class="btn btn-info">Probability of next being more
+                than {{ 21 - $gamerPoints }} scores is <span style="color: red;">{{ $gamerProbability }}% </span>
+            </button>
             <div class="progress">
                 <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
                      style="width: {{ $gamerProbability }}%; text-align: center;"
@@ -50,6 +60,10 @@
         <br>
         <a href="{{ route('blackjack-game-delete') }}">
             <button type="button" class="btn btn-warning">Start Over</button>
+        </a>
+
+        <a href="{{ route('choose-game') }}">
+            <button type="button" class="btn btn-dark">Switch game</button>
         </a>
 </div>
 @endsection
