@@ -13,6 +13,12 @@ class GameController extends Controller
         return view('blackjack/start-page');
     }
 
+    public function chooseGame(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+    {
+        return view('choose-game');
+    }
+
+
     public function start(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
         $blackJack = BlackJack::oldIfPossible($request);

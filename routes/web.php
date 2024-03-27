@@ -22,3 +22,7 @@ Route::prefix('blackjack')->group(function () {
     Route::get('/game-delete', [\App\Http\Controllers\GameController::class, 'removeSession'])
         ->name('blackjack-game-delete');
 });
+
+Route::get('/', [\App\Http\Controllers\GameController::class, 'chooseGame'])
+    ->name('choose-game');
+
