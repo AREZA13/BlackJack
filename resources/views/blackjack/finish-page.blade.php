@@ -2,7 +2,7 @@
 @section('content')
     <style>
         body {
-            background-image: url('https://hippodromecasino.com/wp-content/uploads/2019/11/blackjack.jpg');
+            background-image: url('../../images/front/bgForFinishGame.jpg');
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-size: 100% 100%;
