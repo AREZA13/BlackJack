@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Game\Card;
-use App\Game\Deck;
+use App\Game\BlackJack;
 use Illuminate\Http\Request;
 
 class GameController extends Controller
@@ -14,37 +13,17 @@ class GameController extends Controller
         return view('start-page');
     }
 
-    public function index(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+    public function start(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
-        $deck = (!$request->session()->has('fullDeck'))
-            ? Deck::fullShuffledDeck()
-            : $request->session()->get('fullDeck');
-
-        $pocketCards = [
-            $deck->getOneCardFullShuffledDeckOnTheTable(),
-            $deck->getOneCardFullShuffledDeckOnTheTable(),
-        ];
-
-        $gamerPoints = $this->calcGamerCards($pocketCards);
-        $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
-
-        $request->session()->put('fullDeck', $deck);
-        $request->session()->put('pocketCards', $pocketCards);
-        $request->session()->save();
+        $blackJack = BlackJack::oldIfPossible($request);
+        [$pocketCards, $gamerProbability, $gamerPoints] = $blackJack->forIndex($request);
         return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability, 'gamerPoints' => $gamerPoints]);
     }
 
     public function oneMoreCardPage(Request $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
     {
-        $pocketCards = $request->session()->get('pocketCards');
-        /** @var Deck $deck */
-        $deck = $request->session()->get('fullDeck');
-        /** @var Card[] $pocketCards */
-        $pocketCards[] = $deck->getOneCardFullShuffledDeckOnTheTable();
-        $gamerPoints = $this->calcGamerCards($pocketCards);
-        $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
-        $request->session()->put('pocketCards', $pocketCards);
-        $request->session()->save();
+        $blackJack = BlackJack::fromSession($request);
+        [$pocketCards, $gamerProbability, $gamerPoints] = $blackJack->forOneMoreCardPage($request);
         return view('get-two-cards-game-page', ['pocketCards' => $pocketCards], ['gamerProbability' => $gamerProbability, 'gamerPoints' => $gamerPoints]);
     }
 
@@ -54,58 +33,11 @@ class GameController extends Controller
         return redirect("/start-game-page");
     }
 
-    /** @param Card[] $pocketCards */
-    public function calcGamerCards(array $pocketCards): int
-    {
-        $sum = 0;
-        foreach ($pocketCards as $card) {
-            $sum += $card->getAsPoints();
-        }
-        return $sum;
-    }
-
     public function generateRandomDealerScore(Request $request): string
     {
-        $pocketCards = $request->session()->get('pocketCards');
-        $message = $this->endGameMessage($pocketCards);
+        $blackJack = BlackJack::fromSession($request);
+        $message = $blackJack->forEndGameMessage();
         return view('finish-page', ['message' => $message]);
-    }
-
-    private function endGameMessage(array $pocketCards): string
-    {
-        $gamerScore = $this->calcGamerCards($pocketCards);
-
-        if ($gamerScore > 21) {
-            return "YOU LOOSE  <br> Your score " . $gamerScore;
-        }
-
-        $dealerScore = rand(15, 22);
-
-        if ($dealerScore < $gamerScore) {
-            return "Dealer has " . $dealerScore . "<br>  YOU WIN" . " Your score " . $gamerScore;
-        }
-        if ($dealerScore === 21) {
-            return "Dealer wins with BlackJack";
-        } else {
-            return "Dealer win with " . $dealerScore . " score  <br>" . "Your score is " . $gamerScore;
-        }
-    }
-
-    public function probabilityOfFailScores(int $gamerPoints): int
-    {
-        return match ($gamerPoints) {
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 => 0,
-            12 => 31,
-            20 => 92,
-            19 => 85,
-            18 => 77,
-            17 => 69,
-            16 => 62,
-            15 => 58,
-            14 => 56,
-            13 => 39,
-            default => 100,
-        };
     }
 }
 
