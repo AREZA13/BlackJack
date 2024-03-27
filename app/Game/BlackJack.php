@@ -98,18 +98,18 @@ class BlackJack
         $gamerScore = $this->calcGamerCards($this->pocketCards);
 
         if ($gamerScore > 21) {
-            return "YOU LOOSE  <br> Your score " . $gamerScore;
+            return "<button type='button' disabled class='btn btn-light'> YOU LOOSE  <br> Your score " . $gamerScore . "</button>";
         }
 
         $dealerScore = rand(15, 22);
 
         if ($dealerScore < $gamerScore) {
-            return "Dealer has " . $dealerScore . "<br>  YOU WIN" . " Your score " . $gamerScore;
+            return "<button type='button' disabled class='btn btn-light'> Dealer has " . $dealerScore . "</button>" . "<br>  <button type='button' disabled class='btn btn-success'>   Victory " . " with " . $gamerScore . "</button>";
         }
         if ($dealerScore === 21) {
             return "Dealer wins with BlackJack";
         } else {
-            return "Dealer win with " . $dealerScore . " score  <br>" . "Your score is " . $gamerScore;
+            return "<button type='button' disabled class='btn btn-danger'>Dealer win with " . $dealerScore .  "</button>" . "<br>" . " <button type='button' disabled class='btn btn-light'> Your score is " . $gamerScore . "</button>";
         }
     }
 }
