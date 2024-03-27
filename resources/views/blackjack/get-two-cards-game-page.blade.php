@@ -1,5 +1,5 @@
 <?php /** @var App\Game\Card[] $pocketCards */ ?>
-@extends('blackjack-template')
+@extends('blackjack/template')
 <div style="text-align: center;">
     <button type="button" disabled class="btn btn-primary">
         Your scores <span class="badge badge-light"> {{ $gamerPoints }}</span>
@@ -21,10 +21,10 @@
                  style="width: {{ $gamerProbability }}%; text-align: center;" aria-valuenow="{{ $gamerProbability }}"
                  aria-valuemin="0" aria-valuemax="100">
             </div>
-            <a href="{{ route('one-more-card-page') }}">
+            <a href="{{ route('blackjack-one-more-card-page') }}">
                 <button type="button" class="btn btn-danger">One more card</button>
             </a>
-            <a href="{{ route('stop-game-page') }}">
+            <a href="{{ route('blackjack-stop-game-page') }}">
                 <button type="button" class="btn btn-success">Stop</button>
             </a>
             <br>
@@ -48,7 +48,7 @@
         @endif
         <br>
         <br>
-        <a href="/game-delete">
+        <a href="{{ route('blackjack-game-delete') }}">
             <button type="button" class="btn btn-warning">Start Over</button>
         </a>
 </div>
