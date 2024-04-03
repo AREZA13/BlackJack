@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Game\BlackJack;
 use Illuminate\Http\Request;
 
-class GameController extends Controller
+class BlackJackController extends Controller
 
 {
     public function home(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application

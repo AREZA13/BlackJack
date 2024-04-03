@@ -37,8 +37,8 @@ class BlackJack
     public function forIndex(Request $request): array
     {
         $this->pocketCards = [
-            $this->deck->getOneCardFullShuffledDeckOnTheTable(),
-            $this->deck->getOneCardFullShuffledDeckOnTheTable(),
+            $this->deck->getOneCard(),
+            $this->deck->getOneCard(),
         ];
         $gamerPoints = $this->calcGamerCards();
         $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
@@ -51,7 +51,7 @@ class BlackJack
 
     public function forOneMoreCardPage(Request $request): array
     {
-        $this->pocketCards[] = $this->deck->getOneCardFullShuffledDeckOnTheTable();
+        $this->pocketCards[] = $this->deck->getOneCard();
         $gamerPoints = $this->calcGamerCards();
         $gamerProbability = $this->probabilityOfFailScores($gamerPoints);
         $request->session()->put('fullDeck', $this->deck);

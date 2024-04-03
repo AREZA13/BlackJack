@@ -33,7 +33,7 @@ class Deck
         return count($this->deck);
     }
 
-    public function getOneCardFullShuffledDeckOnTheTable(): Card
+    public function getOneCard(): Card
     {
         return array_pop($this->deck);
     }
