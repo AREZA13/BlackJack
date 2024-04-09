@@ -26,3 +26,13 @@ Route::prefix('blackjack')->group(function () {
 Route::get('/', [\App\Http\Controllers\BlackJackController::class, 'chooseGame'])
     ->name('choose-game');
 
+Route::prefix('poker')->group(function () {
+
+    Route::get('start-game-page', [\App\Http\Controllers\PokerController::class, 'home'])
+        ->name('poker-start-game-page');
+    Route::get('preFlop', [\App\Http\Controllers\PokerController::class, 'preFlop'])
+        ->name('preFlop');
+
+});
+
+
