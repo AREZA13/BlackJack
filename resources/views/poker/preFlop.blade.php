@@ -24,5 +24,17 @@
             </div>
         @endforeach
     </div>
+    <form class="form-inline" method="GET">
+        <div class="form-group mx-sm-3 mb-2">
+            <br>
+            <input type="bet" class="form-control" id="bet" placeholder="Type Your bet">
+            <button type="submit" class="btn btn-warning mb-2">All in</button>
+            <button type="submit" class="btn btn-success mb-2">Bet</button>
+        </div>
+    </form>
+    <div style="text-align: center;">
+        <button type="submit" class="btn btn-secondary mb-2">Check</button>
+        <button type="submit" class="btn btn-danger mb-2">Fall</button>
+    </div>
 
 @endsection
