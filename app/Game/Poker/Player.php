@@ -25,6 +25,11 @@ class Player
         return $this->pocketCards;
     }
 
+    public function getStack(): int
+    {
+        return $this->stack;
+    }
+
     public function randomRoundBet(): int
     {
         $randomBet = rand(1, $this->stack / 10);

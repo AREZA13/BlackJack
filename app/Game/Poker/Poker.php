@@ -3,6 +3,7 @@
 namespace App\Game\Poker;
 
 use App\Game\Deck;
+use Illuminate\Http\Request;
 
 class Poker
 {
@@ -38,9 +39,11 @@ class Poker
         return $players;
     }
 
-    public function bettingForPreFlop($roundBet): void
+    public function bettingAtPreFlop($roundBet): void
     {
         $players = $this->players;
+        $masterPlayer = $players[0];
+        $this->pot += $masterPlayer->roundBet($roundBet);
         array_shift($players);
         foreach ($players as $player) {
             try {
@@ -48,8 +51,9 @@ class Poker
             } catch (\RuntimeException $exception) {
                 continue;
             }
-
-            $this->pot = $this->pot + $playerBet;
+            $this->pot += $playerBet;
         }
+
     }
+
 }

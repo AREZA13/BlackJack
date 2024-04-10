@@ -32,6 +32,8 @@ Route::prefix('poker')->group(function () {
         ->name('poker-start-game-page');
     Route::get('preFlop', [\App\Http\Controllers\PokerController::class, 'preFlop'])
         ->name('preFlop');
+    Route::post('preFlop-bet', [\App\Http\Controllers\PokerController::class, 'preFlopBet'])
+        ->name('preFlopBet');
 
 });
 
