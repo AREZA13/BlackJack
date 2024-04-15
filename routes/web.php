@@ -34,7 +34,21 @@ Route::prefix('poker')->group(function () {
         ->name('preFlop');
     Route::post('preFlop-bet', [\App\Http\Controllers\PokerController::class, 'preFlopBet'])
         ->name('preFlopBet');
+    Route::get('flop', [\App\Http\Controllers\PokerController::class, 'flop'])
+        ->name('flop');
+    Route::post('flop-bet', [\App\Http\Controllers\PokerController::class, 'flopBet'])
+        ->name('flopBet');
+    Route::post('turn-bet', [\App\Http\Controllers\PokerController::class, 'turnBet'])
+        ->name('turnBet');
+    Route::post('river-bet', [\App\Http\Controllers\PokerController::class, 'riverBet'])
+        ->name('riverBet');
+    Route::get('turn', [\App\Http\Controllers\PokerController::class, 'turn'])
+        ->name('turn');
+    Route::get('river', [\App\Http\Controllers\PokerController::class, 'river'])
+        ->name('river');
+
+    Route::get('/game-delete', [\App\Http\Controllers\PokerController::class, 'removeSession'])
+        ->name('poker-game-delete');
+
 
 });
-
-
