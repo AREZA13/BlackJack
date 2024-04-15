@@ -3,7 +3,6 @@
 namespace App\Game\Poker;
 
 use App\Game\Deck;
-use Illuminate\Http\Request;
 
 class Poker
 {
@@ -53,7 +52,30 @@ class Poker
             }
             $this->pot += $playerBet;
         }
+    }
 
+    public function getFlopCards(Deck $deck): array
+    {
+        $this->tableCards = [$deck->getOneCard(), $deck->getOneCard(), $deck->getOneCard()];
+        return $this->tableCards;
+    }
+
+    public function getOneCard(Deck $deck): array
+    {
+        $this->tableCards[] = $deck->getOneCard();
+        return $this->tableCards;
+    }
+
+    public function riverCard(Deck $deck): array
+    {
+        $this->tableCards += [$deck->getOneCard()];
+        return $this->tableCards;
+    }
+
+    public function turnCard(Deck $deck): array
+    {
+        $this->tableCards += [$deck->getOneCard()];
+        return $this->tableCards;
     }
 
 }
