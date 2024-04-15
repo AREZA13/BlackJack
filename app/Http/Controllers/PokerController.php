@@ -4,17 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Game\Poker\Poker;
 use App\Http\Requests\RoundBetRequest;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use function view;
 
 class PokerController extends Controller
 {
-    public function home(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+    public function home(): View|\Illuminate\Foundation\Application|Factory|Application
     {
         return view('poker/start-page');
     }
 
-    public function preFlop(): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+    public function preFlop(): View|\Illuminate\Foundation\Application|Factory|Application
     {
         $poker = Poker::createNewGame();
         $pot = $poker->pot;
@@ -28,7 +35,7 @@ class PokerController extends Controller
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function preFlopBet(RoundBetRequest $request): \Illuminate\Contracts\View\View|\Illuminate\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\Foundation\Application
+    public function preFlopBet(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
     {
         /** @var Poker $poker */
         $poker = session()->get('poker');
@@ -37,6 +44,129 @@ class PokerController extends Controller
         $poker->bettingAtPreFlop($preFlopBet);
         session()->put('poker', $poker);
         session()->save();
-        return \view('poker/flop', ['pot' => $poker->pot], ['players' => $poker->players]);
+        $poker = session()->get('poker');
+        $poker->getFlopCards($poker->deck);
+        session()->put('poker', $poker);
+        session()->save();
+        return view('poker/preFlop', ['pot' => $poker->pot], ['players' => $poker->players]);
     }
+
+    /**
+     * @param RoundBetRequest $request
+     * @param $page
+     * @return Application|Factory|View|\Illuminate\Foundation\Application
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function betting(RoundBetRequest $request, $page): Application|Factory|\Illuminate\Foundation\Application|View
+    {
+        /** @var Poker $poker */
+        $poker = session()->get('poker');
+        $request->validated();
+        $preFlopBet = $request['bet'];
+        $poker->bettingAtPreFlop($preFlopBet);
+        session()->put('poker', $poker);
+        session()->save();
+        $poker = session()->get('poker');
+        return view("poker/{$page}", [
+            'players' => $poker->players,
+            'pot' => $poker->pot,
+            'tableCards' => $poker->tableCards,
+        ]);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function flopBet(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
+    {
+        $urlPageName = 'flop';
+        return $this->betting($request, $urlPageName);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function turnBet(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
+    {
+        $urlPageName = 'turn';
+        return $this->betting($request, $urlPageName);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function riverBet(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
+    {
+        $urlPageName = 'river';
+        return $this->betting($request, $urlPageName);
+    }
+
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function getRoundCards ($urlPageName): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        /** @var Poker $poker */
+        $poker = session()->get('poker');
+        session()->put('poker', $poker);
+        session()->save();
+        return view("poker/{$urlPageName}", [
+            'players' => $poker->players,
+            'pot' => $poker->pot,
+            'tableCards' => $poker->tableCards,
+        ]);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function flop(): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        $poker = session()->get('poker');
+        $poker->getFlopCards($poker->deck);
+        $urlPageName = 'flop';
+        return $this->getRoundCards($urlPageName);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function turn(): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        /** @var Poker $poker */
+        $poker = session()->get('poker');
+        $poker->getOneCard($poker->deck);
+        $urlPageName = 'turn';
+        return $this->getRoundCards($urlPageName);
+
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function river(): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        /** @var Poker $poker */
+        $poker = session()->get('poker');
+        $poker->getOneCard($poker->deck);
+        $urlPageName = 'river';
+        return $this->getRoundCards($urlPageName);
+    }
+
+    public function removeSession(Request $request): \Illuminate\Foundation\Application|Redirector|RedirectResponse|Application
+    {
+        $request->session()->forget('poker');
+        return redirect()->route("poker-start-game-page");
+    }
+
+
 }
