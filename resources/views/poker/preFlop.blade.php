@@ -1,6 +1,9 @@
+@php use App\Game\Poker\Player; @endphp
 <?php
-/** @var \App\Game\Poker\Player[] $players */
+/** @var Player[] $players */
 /** @var int $pot */
+/** @var array $tableCards */
+
 ?>
 @extends('poker/template')
 @section('content')
@@ -12,8 +15,10 @@
             background-size: 100% 100%;
         }
     </style>
-
-
+    <div style="text-align: center;">
+        <button type="button" class="btn btn-primary btn-lg" disabled>Total Pot {{$pot}}</button>
+    </div>
+    <br>
 
     <div style="text-align: center;">
         @foreach($players as $player)
@@ -21,27 +26,49 @@
                 @foreach($player->getPocketCards() as $card)
                     <img src="{{ $card->getAsImagePath() }}" alt="{{ $card->getAsString() }}">
                 @endforeach
+
             </div>
         @endforeach
+        <br>
     </div>
-    <form class="form-inline" action="{{ route('preFlopBet') }}" method="POST">
-        @csrf
-        <div class="form-group mx-sm-3 mb-2">
-            <br>
-            <input type="number" name="bet" class="form-control" max="{{ $players[0]->getStack() }}" placeholder="Type Your bet">
-            <button type="submit" class="btn btn-success mb-2">Bet</button>
-        </div>
-    </form>
-    <div class="form-group mx-sm-3 mb-2">
+
+    <div style="text-align: center;">
         <form class="form-inline" action="{{ route('preFlopBet') }}" method="POST">
             @csrf
-            <input hidden="hidden" type="number" name="bet" class="form-control" value="{{ $players[0]->getStack() }}">
-            <button type="submit" class="btn btn-warning mb-2">All in</button>
+            <input type="number" name="bet" class="form-control" min="1" max="{{ $players[0]->getStack() }}"
+                   placeholder="Type Your bet">
+            <button type="submit" class="btn btn-success mb-2">Bet</button>
         </form>
+        <br>
+        <form style="display: inline;" class="form-inline" action="{{ route('preFlopBet') }}" method="POST">
+            @csrf
+            <input hidden="hidden" type="number" name="bet" class="form-control" value="{{ $players[0]->getStack() }}">
+            <button type="submit" class="btn btn-info mb-2">All in</button>
+        </form>
+
+        <form style="display: inline;" class="form-inline" action="{{ route('preFlopBet') }}" method="POST">
+            @csrf
+            <input hidden="hidden" type="number" name="bet" class="form-control" value="0">
+            <button type="submit" class="btn btn-secondary mb-2">Check</button>
+        </form>
+
+        <form style="display: inline;" class="form-inline" action="{{ route('poker-game-delete') }}">
+            @csrf
+            <button type="submit" class="btn btn-danger mb-2">Fall</button>
+        </form>
+        <br>
+        <a href="{{ route('flop') }}">
+            <button type="button" class="btn btn-primary btn-lg">Get flop</button>
+        </a>
     </div>
-    <div style="text-align: center;">
-        <button type="submit" class="btn btn-secondary mb-2">Check</button>
-        <button type="submit" class="btn btn-danger mb-2">Fall</button>
-    </div>
+    <br>
+    <br>
+    <a href="{{ route('poker-game-delete') }}">
+        <button type="button" class="btn btn-warning">Start Over</button>
+    </a>
+    <a href="{{ route('choose-game') }}">
+        <button type="button" class="btn btn-dark">Switch game</button>
+    </a>
+
 
 @endsection
