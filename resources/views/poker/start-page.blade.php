@@ -15,4 +15,9 @@
         <button type="button" class="btn btn-dark">Switch game</button>
     </a>
 
+    <a href="{{ route('poker-game-delete') }}">
+        <button type="button" class="btn btn-warning">Start Over</button>
+    </a>
+
+
 @endsection
