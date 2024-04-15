@@ -42,23 +42,20 @@ class PokerController extends Controller
         $request->validated();
         $preFlopBet = $request['bet'];
         $poker->bettingAtPreFlop($preFlopBet);
-        session()->put('poker', $poker);
-        session()->save();
-        $poker = session()->get('poker');
         $poker->getFlopCards($poker->deck);
         session()->put('poker', $poker);
         session()->save();
-        return view('poker/preFlop', ['pot' => $poker->pot], ['players' => $poker->players]);
+        return view('poker/preFlop', [
+            'pot' => $poker->pot,
+            'players' => $poker->players
+        ]);
     }
 
     /**
-     * @param RoundBetRequest $request
-     * @param $page
-     * @return Application|Factory|View|\Illuminate\Foundation\Application
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function betting(RoundBetRequest $request, $page): Application|Factory|\Illuminate\Foundation\Application|View
+    private function betting(RoundBetRequest $request, $page): Application|Factory|\Illuminate\Foundation\Application|View
     {
         /** @var Poker $poker */
         $poker = session()->get('poker');
@@ -67,7 +64,6 @@ class PokerController extends Controller
         $poker->bettingAtPreFlop($preFlopBet);
         session()->put('poker', $poker);
         session()->save();
-        $poker = session()->get('poker');
         return view("poker/{$page}", [
             'players' => $poker->players,
             'pot' => $poker->pot,
