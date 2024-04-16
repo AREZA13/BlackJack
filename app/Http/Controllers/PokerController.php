@@ -45,7 +45,7 @@ class PokerController extends Controller
         $poker->getFlopCards($poker->deck);
         session()->put('poker', $poker);
         session()->save();
-        return view('poker/preFlop', [
+        return view('poker/preFlopJs', [
             'pot' => $poker->pot,
             'players' => $poker->players
         ]);
@@ -106,7 +106,7 @@ class PokerController extends Controller
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function getRoundCards ($urlPageName): Factory|\Illuminate\Foundation\Application|View|Application
+    public function getRoundCards($urlPageName): Factory|\Illuminate\Foundation\Application|View|Application
     {
         /** @var Poker $poker */
         $poker = session()->get('poker');
@@ -156,6 +156,42 @@ class PokerController extends Controller
         $poker->getOneCard($poker->deck);
         $urlPageName = 'river';
         return $this->getRoundCards($urlPageName);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function allInBet(): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        /** @var Poker $poker */
+        $poker = session()->get('poker');
+        $tableCards = $poker->tableCards;
+        $stackPlayer = 0;
+        $pot = $poker->pot;
+
+        foreach ($poker->players as $player) {
+            $stackPlayer += $player->getStack();
+
+        }
+        if (count($tableCards) !== 5) {
+            for ($i = count($poker->tableCards); $i < 5; $i++) {
+                $tableCards = $poker->getOneCard($poker->deck);
+            }
+            session()->put('poker', $poker);
+            session()->save();
+            return view("poker/all-in-bet", [
+                'players' => $poker->players,
+                'pot' => $stackPlayer,
+                'tableCards' => $tableCards,]);
+        }
+
+        session()->put('poker', $poker);
+        session()->save();
+        return view("poker/all-in-bet", [
+            'players' => $poker->players,
+            'pot' => $stackPlayer,
+            'tableCards' => $tableCards,]);
     }
 
     public function removeSession(Request $request): \Illuminate\Foundation\Application|Redirector|RedirectResponse|Application
