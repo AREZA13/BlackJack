@@ -33,14 +33,23 @@
     </div>
 
     <div style="text-align: center;">
-        <form class="form-inline" action="{{ route('preFlopBet') }}" method="POST">
+        <form class="form-inline" name="formBet" action="{{ route('preFlopBet') }}" method="POST">
             @csrf
-            <input type="number" name="bet" class="form-control" min="1" max="{{ $players[0]->getStack() }}"
+            <input type="number" style="display: inline" id="input" name="bet" class="form-control" min="1"
+                   max="{{ $players[0]->getStack() }}"
                    placeholder="Type Your bet">
-            <button type="submit" class="btn btn-success mb-2">Bet</button>
+            <button type="submit" style="display: inline" name="betButton" id="betButton" class="btn btn-success mb-2">
+                Bet
+            </button>
+
         </form>
+
+        <a href="{{ route('flop') }}">
+            <button type="button" name="getFlop" id="getFlop" hidden="hidden" class="btn btn-primary btn-lg">Get flop
+            </button>
+        </a>
         <br>
-        <form style="display: inline;" class="form-inline" action="{{ route('preFlopBet') }}" method="POST">
+        <form style="display: inline;" class="form-inline" action="{{ route('allInBet') }}" method="POST">
             @csrf
             <input hidden="hidden" type="number" name="bet" class="form-control" value="{{ $players[0]->getStack() }}">
             <button type="submit" class="btn btn-info mb-2">All in</button>
@@ -56,10 +65,7 @@
             @csrf
             <button type="submit" class="btn btn-danger mb-2">Fall</button>
         </form>
-        <br>
-        <a href="{{ route('flop') }}">
-            <button type="button" class="btn btn-primary btn-lg">Get flop</button>
-        </a>
+
     </div>
     <br>
     <br>
@@ -69,6 +75,5 @@
     <a href="{{ route('choose-game') }}">
         <button type="button" class="btn btn-dark">Switch game</button>
     </a>
-
 
 @endsection
