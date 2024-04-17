@@ -38,7 +38,7 @@ class Poker
         return $players;
     }
 
-    public function bettingAtPreFlop($roundBet): void
+    public function roundBetting($roundBet): void
     {
         $players = $this->players;
         $masterPlayer = $players[0];
@@ -66,16 +66,9 @@ class Poker
         return $this->tableCards;
     }
 
-    public function riverCard(Deck $deck): array
+    public function tableCardsIsLessThanFive()
     {
-        $this->tableCards += [$deck->getOneCard()];
-        return $this->tableCards;
-    }
 
-    public function turnCard(Deck $deck): array
-    {
-        $this->tableCards += [$deck->getOneCard()];
-        return $this->tableCards;
     }
 
 }
