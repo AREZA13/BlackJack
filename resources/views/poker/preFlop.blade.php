@@ -33,7 +33,7 @@
     </div>
 
     <div style="text-align: center;">
-        <form class="form-inline" name="formBet" action="{{ route('preFlopBet') }}" method="POST">
+        <form class="form-inline" name="formBet" action="{{ route('flop') }}" method="GET">
             @csrf
             <input type="number" style="display: inline" id="input" name="bet" class="form-control" min="1"
                    max="{{ $players[0]->getStack() }}"
@@ -55,7 +55,7 @@
             <button type="submit" class="btn btn-info mb-2">All in</button>
         </form>
 
-        <form style="display: inline;" class="form-inline" action="{{ route('preFlopBet') }}" method="POST">
+        <form style="display: inline;" class="form-inline" action="{{ route('flop') }}" method="GET">
             @csrf
             <input hidden="hidden" type="number" name="bet" class="form-control" value="0">
             <button type="submit" class="btn btn-secondary mb-2">Check</button>
