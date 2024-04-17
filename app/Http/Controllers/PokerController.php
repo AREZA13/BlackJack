@@ -77,7 +77,7 @@ class PokerController extends Controller
      */
     public function flopBet(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
     {
-        $urlPageName = 'flop';
+        $urlPageName = 'flopJs';
         return $this->betting($request, $urlPageName);
     }
 
@@ -87,7 +87,7 @@ class PokerController extends Controller
      */
     public function turnBet(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
     {
-        $urlPageName = 'turn';
+        $urlPageName = 'turnJs';
         return $this->betting($request, $urlPageName);
     }
 
