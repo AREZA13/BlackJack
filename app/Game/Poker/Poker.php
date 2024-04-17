@@ -66,9 +66,12 @@ class Poker
         return $this->tableCards;
     }
 
-    public function tableCardsIsLessThanFive()
+    public function tableCardsIsLessThanFive(): void
     {
-
+        if (count($this->tableCards) !== 5) {
+            for ($i = count($this->tableCards); $i < 5; $i++) {
+                $this->tableCards = $this->getOneCard($this->deck);
+            }
+        }
     }
-
 }
