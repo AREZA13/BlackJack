@@ -60,10 +60,6 @@
             @csrf
             <button type="submit" class="btn btn-danger mb-2">Fall</button>
         </form>
-        <br>
-        <a href="{{ route('turn') }}">
-            <button type="button" class="btn btn-primary btn-lg">Get turn</button>
-        </a>
     </div>
     <br>
     <br>
