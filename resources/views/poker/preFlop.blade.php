@@ -28,14 +28,15 @@
                 @endforeach
 
             </div>
+            <br>
         @endforeach
         <br>
     </div>
 
     <div style="text-align: center;">
-        <form class="form-inline" name="formBet" action="{{ route('flop') }}" method="GET">
+        <form class="form-inline" name="formBet" action="{{ route('flop') }}" method="POST">
             @csrf
-            <input type="number" style="display: inline" id="input" name="bet" class="form-control" min="1"
+            <input type="number" style="display: inline" id="input" value="1" name="bet" class="form-control" min="1"
                    max="{{ $players[0]->getStack() }}"
                    placeholder="Type Your bet">
             <button type="submit" style="display: inline" name="betButton" id="betButton" class="btn btn-success mb-2">
@@ -55,7 +56,7 @@
             <button type="submit" class="btn btn-info mb-2">All in</button>
         </form>
 
-        <form style="display: inline;" class="form-inline" action="{{ route('flop') }}" method="GET">
+        <form style="display: inline;" class="form-inline" action="{{ route('flop') }}" method="POST">
             @csrf
             <input hidden="hidden" type="number" name="bet" class="form-control" value="0">
             <button type="submit" class="btn btn-secondary mb-2">Check</button>

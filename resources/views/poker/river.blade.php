@@ -29,6 +29,7 @@
                     <img src="{{ $card->getAsImagePath() }}" alt="{{ $card->getAsString() }}">
                 @endforeach
             </div>
+            <br>
         @endforeach
         <br>
         @foreach($tableCards as $tableCard)
@@ -36,10 +37,11 @@
             <img src="{{ $tableCard->getAsImagePath() }}" alt="{{ $tableCard->getAsString() }}">
         @endforeach
     </div>
+    <br>
     <div style="text-align: center;">
         <form class="form-inline" action="{{ route('riverBet') }}" method="POST">
             @csrf
-            <input type="number" name="bet" class="form-control" min="1" max="{{ $players[0]->getStack() }}"
+            <input type="number" name="bet" class="form-control" value="1" min="1" max="{{ $players[0]->getStack() }}"
                    placeholder="Type Your bet">
             <button type="submit" class="btn btn-success mb-2">Bet</button>
         </form>
