@@ -11,12 +11,44 @@ class Poker
      * @param Player[] $players
      */
     public function __construct(
-        public Deck           $deck,
-        public readonly array $players,
-        public int            $pot = 0,
-        public array          $tableCards = [],
+        private readonly Deck $deck,
+        private readonly array $players,
+        private int           $pot = 0,
+        private array         $tableCards = [],
     )
     {
+    }
+
+    /**
+     * @return Deck
+     */
+    public function getDeck(): Deck
+    {
+        return $this->deck;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPlayers(): array
+    {
+        return $this->players;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPot(): int
+    {
+        return $this->pot;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTableCards(): array
+    {
+        return $this->tableCards;
     }
 
     public static function createNewGame(): Poker
