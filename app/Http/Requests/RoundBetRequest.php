@@ -23,6 +23,7 @@ class RoundBetRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'decision' => 'string',
             'bet' => 'required|int',
         ];
     }

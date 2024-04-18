@@ -11,119 +11,73 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
+use Illuminate\Support\Facades\Redirect;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use function view;
 
 class PokerController extends Controller
 {
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function get()
+    {
+        /** @var ?Poker $poker */
+        $poker = session()->get('poker');
+
+        if (is_null($poker)) {
+            $poker = Poker::createNewGame();
+            $this->savePokerInSession($poker);
+        }
+
+        return view($poker->getStage()->returnAsView(), [
+            'players' => $poker->getPlayers(),
+            'pot' => $poker->getPot(),
+            'tableCards' => $poker->getTableCards(),
+        ]);
+    }
+
     public function home(): View|\Illuminate\Foundation\Application|Factory|Application
     {
         return view('poker/start-page');
     }
 
-    public function preFlop(): View|\Illuminate\Foundation\Application|Factory|Application
-    {
-        $poker = Poker::createNewGame();
-        $this->savePokerInSession($poker);
-        return view('poker/pre-flop', ['pot' => $poker->getPot()], ['players' => $poker->getPlayers()]);
-    }
-
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function flop(RoundBetRequest $request): Factory|\Illuminate\Foundation\Application|View|Application
-    {
-        return $this->flopTurnRiver($request, Stage::flop);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function turn(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
-    {
-        return $this->flopTurnRiver($request, Stage::turn);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function river(RoundBetRequest $request): Factory|\Illuminate\Foundation\Application|View|Application
-    {
-        return $this->flopTurnRiver($request, Stage::river);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function flopTurnRiver(RoundBetRequest $request, Stage $stage): Factory|View|\Illuminate\Foundation\Application|Application
+    public function post(RoundBetRequest $request)
     {
         /** @var Poker $poker */
         $poker = session()->get('poker');
+        $previousStage = $poker->getStage();
         $request->validated();
-        $preFlopBet = $request['bet'];
-        $poker->roundBetting($preFlopBet);;
+        $bet = $request['bet'];
+        $poker->roundBetting($bet);
 
-        if ($stage === Stage::flop) {
+        if ($previousStage === Stage::PreFlop) {
             $poker->getFlopCards($poker->getDeck());
+            $poker->stage = Stage::Flop;
         }
 
-        if ($stage === Stage::turn || $stage === Stage::river) {
+        if ($previousStage === Stage::Flop) {
             $poker->getOneCard($poker->getDeck());
+            $poker->stage = Stage::Turn;
+        }
+
+        if ($previousStage === Stage::Turn) {
+            $poker->getOneCard($poker->getDeck());
+            $poker->stage = Stage::River;
+        }
+
+        if ($previousStage === Stage::River) {
+            $poker->stage = Stage::Results;
         }
 
         $this->savePokerInSession($poker);
-        $urlPageName = $stage->name;
-        return $this->getRoundCards($urlPageName);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function riverBet(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
-    {
-        $urlPageName = 'river';
-        return $this->betting($request, $urlPageName);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    private function betting(RoundBetRequest $request, $page): Application|Factory|\Illuminate\Foundation\Application|View
-    {
-        /** @var Poker $poker */
-        $poker = session()->get('poker');
-        $request->validated();
-        $preFlopBet = $request['bet'];
-        $poker->roundBetting($preFlopBet);
-        $this->savePokerInSession($poker);
-        return view("poker/{$page}", [
-            'players' => $poker->getPlayers(),
-            'pot' => $poker->getPot(),
-            'tableCards' => $poker->getTableCards(),
-        ]);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function getRoundCards($urlPageName): Factory|\Illuminate\Foundation\Application|View|Application
-    {
-        /** @var Poker $poker */
-        $poker = session()->get('poker');
-        $this->savePokerInSession($poker);
-        return view("poker/{$urlPageName}", [
-            'players' => $poker->getPlayers(),
-            'pot' => $poker->getPot(),
-            'tableCards' => $poker->getTableCards(),
-        ]);
+        return redirect()->back();
     }
 
     /**
@@ -151,7 +105,7 @@ class PokerController extends Controller
     public function removeSession(Request $request): \Illuminate\Foundation\Application|Redirector|RedirectResponse|Application
     {
         $request->session()->forget('poker');
-        return redirect()->route("poker-start-game-page");
+        return redirect()->route("pokerGet");
     }
 
     public function savePokerInSession(Poker $poker): void

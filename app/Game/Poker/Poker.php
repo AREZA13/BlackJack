@@ -11,12 +11,22 @@ class Poker
      * @param Player[] $players
      */
     public function __construct(
-        private readonly Deck $deck,
+        private readonly Deck  $deck,
+        public Stage           $stage,
         private readonly array $players,
-        private int           $pot = 0,
-        private array         $tableCards = [],
+        private int            $pot = 0,
+        private array          $tableCards = [],
+
     )
     {
+    }
+
+    /**
+     * @return Stage
+     */
+    public function getStage(): Stage
+    {
+        return $this->stage;
     }
 
     /**
@@ -55,7 +65,7 @@ class Poker
     {
         $deck = Deck::fullShuffledDeck();
         $players = self::getNewPlayers($deck);
-        return new self($deck, $players);
+        return new self($deck, Stage::PreFlop, $players);
     }
 
     private static function getNewPlayers(Deck $deck): array

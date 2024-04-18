@@ -4,18 +4,21 @@ namespace App\Game\Poker;
 
 enum Stage
 {
-    case preFlop;
-    case flop;
-    case turn;
-    case river;
+    case NewGame;
+    case PreFlop;
+    case Flop;
+    case Turn;
+    case River;
+    case Results;
 
     public function returnAsView(): string
     {
-        $viewFileName = match($this) {
-            self::preFlop => 'pre-flop',
-            self::flop => 'flop',
-            self::turn => 'turn',
-            self::river => 'river',
+        $viewFileName = match ($this) {
+            self::PreFlop => 'pre-flop',
+            self::Flop => 'flop',
+            self::Turn => 'turn',
+            self::River => 'river',
+            self::Results => 'results',
         };
 
         return "poker/{$viewFileName}";

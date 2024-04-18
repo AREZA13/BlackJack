@@ -26,27 +26,13 @@ Route::prefix('blackjack')->group(function () {
 Route::get('/', [\App\Http\Controllers\BlackJackController::class, 'chooseGame'])
     ->name('choose-game');
 
-Route::prefix('poker')->group(function () {
-
-    Route::get('start-game-page', [\App\Http\Controllers\PokerController::class, 'home'])
-        ->name('poker-start-game-page');
-    Route::get('preFlop', [\App\Http\Controllers\PokerController::class, 'preFlop'])
-        ->name('preFlop');
-    Route::post('flop', [\App\Http\Controllers\PokerController::class, 'flop'])
-        ->name('flop');
-    Route::post('turn', [\App\Http\Controllers\PokerController::class, 'turn'])
-        ->name('turn');
-    Route::post('river', [\App\Http\Controllers\PokerController::class, 'river'])
-        ->name('river');
-    Route::post('river', [\App\Http\Controllers\PokerController::class, 'river'])
-        ->name('river');
-    Route::post('river-bet', [\App\Http\Controllers\PokerController::class, 'riverBet'])
-        ->name('riverBet');
-    Route::post('all-in-bet', [\App\Http\Controllers\PokerController::class, 'allInBet'])
-        ->name('allInBet');
-
-    Route::get('/game-delete', [\App\Http\Controllers\PokerController::class, 'removeSession'])
-        ->name('poker-game-delete');
+Route::get('poker', [\App\Http\Controllers\PokerController::class, 'get'])
+    ->name('pokerGet');
+Route::post('poker', [\App\Http\Controllers\PokerController::class, 'post'])
+    ->name('pokerPost');
+Route::post('all-in-bet', [\App\Http\Controllers\PokerController::class, 'allInBet'])
+    ->name('allInBet');
+Route::get('/game-delete', [\App\Http\Controllers\PokerController::class, 'removeSession'])
+    ->name('poker-game-delete');
 
 
-});
