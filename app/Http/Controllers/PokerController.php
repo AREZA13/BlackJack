@@ -28,7 +28,7 @@ class PokerController extends Controller
         $players = $poker->getPlayers();
         session()->put('poker', $poker);
         session()->save();
-        return view('poker/preFlop', ['pot' => $pot], ['players' => $players]);
+        return view('poker/pre-flop', ['pot' => $pot], ['players' => $players]);
     }
 
     /**

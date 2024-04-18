@@ -1,21 +1,20 @@
 @php
     use App\Game\Poker\Player;
 @endphp
-
 <?php
 /** @var Player[] $players */
 /** @var int $pot */
 /** @var array $tableCards */
-?>
 
+?>
 @extends('poker/template')
-@section('title', 'Poker Turn Round')
+@section('title', 'Poker Pre Flop Round')
 
 @include('poker/components/background')
 
 @section('content')
     @include('poker/components/total-pot-button')
-    @include('poker.components.show-cards-flop-turn-river')
-    @include('poker/components/buttons-for-flop-turn-river', ['pageUrl' => route('river')])
+    @include('poker.components/show-cards-preflop')
+    @include('poker/components/buttons-for-flop-turn-river', ['pageUrl' => route('flop')])
     @include('poker/components/startover-switch-buttons')
 @endsection

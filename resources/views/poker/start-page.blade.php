@@ -1,13 +1,10 @@
 @extends('poker/template')
+
+@section('title', 'Start Texas Holdem')
+
+@include('poker/components/background')
+
 @section('content')
-    <style>
-        body {
-            background-image: url('../../images/front/bgForFinishGame.jpg');
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-size: 100% 100%;
-        }
-    </style>
     <a href="{{ route('preFlop') }}">
         <button type="button" class="btn btn-primary">Start game</button>
     </a>
