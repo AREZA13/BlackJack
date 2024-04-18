@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Game\Poker\Poker;
+use App\Game\Poker\Stage;
 use App\Http\Requests\RoundBetRequest;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -24,7 +25,7 @@ class PokerController extends Controller
     public function preFlop(): View|\Illuminate\Foundation\Application|Factory|Application
     {
         $poker = Poker::createNewGame();
-        $this->putSaveSession($poker);
+        $this->savePokerInSession($poker);
         return view('poker/pre-flop', ['pot' => $poker->getPot()], ['players' => $poker->getPlayers()]);
     }
 
@@ -34,8 +35,7 @@ class PokerController extends Controller
      */
     public function flop(RoundBetRequest $request): Factory|\Illuminate\Foundation\Application|View|Application
     {
-        $round = 'flop';
-        return $this->flopTurnRiver($request, $round);
+        return $this->flopTurnRiver($request, Stage::flop);
     }
 
     /**
@@ -44,8 +44,7 @@ class PokerController extends Controller
      */
     public function turn(RoundBetRequest $request): View|\Illuminate\Foundation\Application|Factory|Application
     {
-        $round = 'turn';
-        return $this->flopTurnRiver($request, $round);
+        return $this->flopTurnRiver($request, Stage::turn);
     }
 
     /**
@@ -54,15 +53,14 @@ class PokerController extends Controller
      */
     public function river(RoundBetRequest $request): Factory|\Illuminate\Foundation\Application|View|Application
     {
-        $round = 'river';
-        return $this->flopTurnRiver($request, $round);
+        return $this->flopTurnRiver($request, Stage::river);
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function flopTurnRiver(RoundBetRequest $request, $round): Factory|View|\Illuminate\Foundation\Application|Application
+    public function flopTurnRiver(RoundBetRequest $request, Stage $stage): Factory|View|\Illuminate\Foundation\Application|Application
     {
         /** @var Poker $poker */
         $poker = session()->get('poker');
@@ -70,16 +68,16 @@ class PokerController extends Controller
         $preFlopBet = $request['bet'];
         $poker->roundBetting($preFlopBet);;
 
-        if ($round === 'turn' || 'river') {
-            $poker->getOneCard($poker->getDeck());
-        }
-
-        if ($round === 'flop') {
+        if ($stage === Stage::flop) {
             $poker->getFlopCards($poker->getDeck());
         }
 
-        $this->putSaveSession($poker);
-        $urlPageName = $round;
+        if ($stage === Stage::turn || $stage === Stage::river) {
+            $poker->getOneCard($poker->getDeck());
+        }
+
+        $this->savePokerInSession($poker);
+        $urlPageName = $stage->name;
         return $this->getRoundCards($urlPageName);
     }
 
@@ -104,7 +102,7 @@ class PokerController extends Controller
         $request->validated();
         $preFlopBet = $request['bet'];
         $poker->roundBetting($preFlopBet);
-        $this->putSaveSession($poker);
+        $this->savePokerInSession($poker);
         return view("poker/{$page}", [
             'players' => $poker->getPlayers(),
             'pot' => $poker->getPot(),
@@ -120,7 +118,7 @@ class PokerController extends Controller
     {
         /** @var Poker $poker */
         $poker = session()->get('poker');
-        $this->putSaveSession($poker);
+        $this->savePokerInSession($poker);
         return view("poker/{$urlPageName}", [
             'players' => $poker->getPlayers(),
             'pot' => $poker->getPot(),
@@ -137,12 +135,13 @@ class PokerController extends Controller
         /** @var Poker $poker */
         $poker = session()->get('poker');
         $stackPlayer = 0;
+
         foreach ($poker->getPlayers() as $player) {
             $stackPlayer += $player->getStack();
         }
         $poker->tableCardsIsLessThanFive();
         $tableCards = $poker->getTableCards();
-        $this->putSaveSession($poker);
+        $this->savePokerInSession($poker);
         return view("poker/all-in-bet", [
             'players' => $poker->getPlayers(),
             'pot' => $stackPlayer,
@@ -155,11 +154,9 @@ class PokerController extends Controller
         return redirect()->route("poker-start-game-page");
     }
 
-    public function putSaveSession($sessionKey): void
+    public function savePokerInSession(Poker $poker): void
     {
-        session()->put('poker', $sessionKey);
+        session()->put('poker', $poker);
         session()->save();
     }
-
-
 }
