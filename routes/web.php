@@ -30,9 +30,10 @@ Route::get('poker', [\App\Http\Controllers\PokerController::class, 'get'])
     ->name('pokerGet');
 Route::post('poker', [\App\Http\Controllers\PokerController::class, 'post'])
     ->name('pokerPost');
-Route::post('all-in-bet', [\App\Http\Controllers\PokerController::class, 'allInBet'])
+
+Route::post('all-in-bet', [\App\Game\Poker\Poker::class, 'allInBet'])
     ->name('allInBet');
-Route::get('/game-delete', [\App\Http\Controllers\PokerController::class, 'removeSession'])
+Route::get('poker-game-delete', [\App\Game\Poker\Poker::class, 'removeSession'])
     ->name('poker-game-delete');
 
 

@@ -3,6 +3,16 @@
 namespace App\Game\Poker;
 
 use App\Game\Deck;
+use App\Http\Controllers\PokerController;
+use App\Http\Requests\RoundBetRequest;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 class Poker
 {
@@ -80,6 +90,10 @@ class Poker
         return $players;
     }
 
+    /**
+     * @param $roundBet
+     * @return void
+     */
     public function roundBetting($roundBet): void
     {
         $players = $this->players;
@@ -96,6 +110,10 @@ class Poker
         }
     }
 
+    /**
+     * @param Deck $deck
+     * @return array
+     */
     public function getFlopCards(Deck $deck): array
     {
         $this->tableCards = [$deck->getOneCard(), $deck->getOneCard(), $deck->getOneCard()];
@@ -115,5 +133,81 @@ class Poker
                 $this->tableCards = $this->getOneCard($this->deck);
             }
         }
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function allInBet(): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        /** @var ?Poker $poker */
+        $poker = session()->get('poker');
+        $stackPlayer = 0;
+
+        foreach ($poker->getPlayers() as $player) {
+            $stackPlayer += $player->getStack();
+        }
+        $poker->tableCardsIsLessThanFive();
+        $tableCards = $poker->getTableCards();
+        PokerController::class->savePokerInSession($poker);
+        return view("poker/all-in-bet", [
+            'players' => $poker->getPlayers(),
+            'pot' => $stackPlayer,
+            'tableCards' => $tableCards,]);
+    }
+
+    public function checkCurrentStage($previousStage)
+    {
+        if ($previousStage === Stage::PreFlop) {
+            $this->getFlopCards($this->getDeck());
+            $this->stage = Stage::Flop;
+        }
+
+        if ($previousStage === Stage::Flop) {
+            $this->getOneCard($this->getDeck());
+            $this->stage = Stage::Turn;
+        }
+
+        if ($previousStage === Stage::Turn) {
+            $this->getOneCard($this->getDeck());
+            $this->stage = Stage::River;
+        }
+
+        if ($previousStage === Stage::River) {
+            $this->stage = Stage::Results;
+        }
+
+        return $previousStage;
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws ContainerExceptionInterfaceDe
+     * @throws NotFoundExceptionInterface
+     */
+    public static function checkPreviousStageAndReturnView()
+    {
+        $poker = session()->get('poker');
+
+        if (!is_null($poker)) {
+            return $poker;
+        }
+
+        $poker = Poker::createNewGame();
+        $poker->savePokerInSession();
+        return $poker;
+    }
+
+    public function removeSession(RoundBetRequest $request): RedirectResponse
+    {
+        $request->session()->forget('poker');
+        return redirect()->route("choose-game");
+    }
+
+    public function savePokerInSession(): void
+    {
+        session()->put('poker', $this);
+        session()->save();
     }
 }

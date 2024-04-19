@@ -2,6 +2,7 @@
 
 namespace App\Game;
 
+use Illuminate\Http\Request;
 use SessionHandler;
 use Symfony\Component\Uid\Factory\TimeBasedUuidFactory;
 use function Laravel\Prompts\alert;
