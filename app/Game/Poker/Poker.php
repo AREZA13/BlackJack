@@ -3,14 +3,6 @@
 namespace App\Game\Poker;
 
 use App\Game\Deck;
-use App\Http\Controllers\PokerController;
-use App\Http\Requests\RoundBetRequest;
-use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Contracts\View\Factory;
-use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -126,7 +118,7 @@ class Poker
         return $this->tableCards;
     }
 
-    public function tableCardsIsLessThanFive(): void
+    public function dealTableCardsIfLessThanFive(): void
     {
         if (count($this->tableCards) !== 5) {
             for ($i = count($this->tableCards); $i < 5; $i++) {
@@ -135,26 +127,12 @@ class Poker
         }
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function allInBet(): Factory|\Illuminate\Foundation\Application|View|Application
+    public function allInBet(): void
     {
-        /** @var ?Poker $poker */
-        $poker = session()->get('poker');
-        $stackPlayer = 0;
-
-        foreach ($poker->getPlayers() as $player) {
-            $stackPlayer += $player->getStack();
+        foreach ($this->getPlayers() as $player) {
+            $this->pot += $player->getStack();
         }
-        $poker->tableCardsIsLessThanFive();
-        $tableCards = $poker->getTableCards();
-        PokerController::class->savePokerInSession($poker);
-        return view("poker/all-in-bet", [
-            'players' => $poker->getPlayers(),
-            'pot' => $stackPlayer,
-            'tableCards' => $tableCards,]);
+        $this->dealTableCardsIfLessThanFive();
     }
 
     public function checkCurrentStage($previousStage)
@@ -183,10 +161,9 @@ class Poker
 
     /**
      * @throws ContainerExceptionInterface
-     * @throws ContainerExceptionInterfaceDe
      * @throws NotFoundExceptionInterface
      */
-    public static function checkPreviousStageAndReturnView()
+    public static function checkPreviousStageAndReturnView(): self
     {
         $poker = session()->get('poker');
 
@@ -199,11 +176,6 @@ class Poker
         return $poker;
     }
 
-    public function removeSession(RoundBetRequest $request): RedirectResponse
-    {
-        $request->session()->forget('poker');
-        return redirect()->route("choose-game");
-    }
 
     public function savePokerInSession(): void
     {

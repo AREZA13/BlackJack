@@ -4,7 +4,6 @@ namespace App\Game\Poker;
 
 enum Stage
 {
-    case NewGame;
     case PreFlop;
     case Flop;
     case Turn;
