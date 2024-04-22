@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Game\Poker\NoPokerInSessionException;
 use App\Game\Poker\Poker;
-use App\Game\Poker\Stage;
 use App\Http\Requests\RoundBetRequest;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Redirector;
-use Illuminate\Support\Facades\Redirect;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use function view;
@@ -30,7 +28,6 @@ class PokerController extends Controller
      */
     public function get(): Factory|\Illuminate\Foundation\Application|View|Application
     {
-        /** @var Poker $poker */
         $poker = Poker::checkPreviousStageAndReturnView();
 
         return view($poker->getStage()->returnAsView(), [
@@ -43,11 +40,11 @@ class PokerController extends Controller
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws NoPokerInSessionException
      */
-    public function post(RoundBetRequest $request)
+    public function post(RoundBetRequest $request): RedirectResponse
     {
-        /** @var Poker $poker */
-        $poker = session()->get('poker');
+        $poker = $this->getPokerFromSession();
         $previousStage = $poker->getStage();
         $request->validated();
         $bet = $request['bet'];
@@ -55,5 +52,42 @@ class PokerController extends Controller
         $poker->checkCurrentStage($previousStage);
         $poker->savePokerInSession();
         return redirect()->back();
+    }
+
+    public function removeSession(Request $request): RedirectResponse
+    {
+        $request->session()->forget('poker');
+        return redirect()->route("choose-game");
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws NoPokerInSessionException
+     */
+    public function allInBet(): Factory|\Illuminate\Foundation\Application|View|Application
+    {
+        $poker = $this->getPokerFromSession();
+        $poker->allInBet();
+        $poker->savePokerInSession();
+        return view("poker/all-in-bet", [
+            'players' => $poker->getPlayers(),
+            'pot' => $poker->getPot(),
+            'tableCards' => $poker->getTableCards(),]);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws NoPokerInSessionException
+     */
+    private function getPokerFromSession(): Poker
+    {
+        $poker = session()->get('poker');
+
+        if (is_null($poker)) {
+            throw new NoPokerInSessionException();
+        }
+        return $poker;
     }
 }
