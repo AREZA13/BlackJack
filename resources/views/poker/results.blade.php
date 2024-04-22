@@ -15,6 +15,6 @@
 
 @section('content')
     @include('poker/components/total-pot-button')
-    @include('poker.components.show-cards-flop-turn-river')
+    @include('poker/components/show-result-cards')
     @include('poker/components/startover-switch-buttons')
 @endsection

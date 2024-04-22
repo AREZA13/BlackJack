@@ -26,6 +26,11 @@ readonly class Card
         return "../../images/card/{$this->getAsTwoLettersString()}.png";
     }
 
+    public function getAsBackCardImage(): string
+    {
+        return "../../images/backCard/backCard.png";
+    }
+
     public function getAsPoints(): int
     {
         return match ($this->nominal) {

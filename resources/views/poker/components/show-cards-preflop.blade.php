@@ -1,11 +1,17 @@
 <div style="text-align: center;">
-    @foreach($players as $player)
+
         <div>
-            @foreach($player->getPocketCards() as $card)
-                <img src="{{ $card->getAsImagePath() }}" alt="{{ $card->getAsString() }}">
+            @foreach($players[1]->getPocketCards() as $card)
+                <img src="{{ $card->getAsBackCardImage() }}">
+            @endforeach
+            @foreach($players[2]->getPocketCards() as $card)
+                <img src="{{ $card->getAsBackCardImage() }}">
             @endforeach
         </div>
-        <br>
+    <br>
+    @foreach($players[0]->getPocketCards() as $card)
+        <img src="{{ $card->getAsImagePath() }}" alt="{{ $card->getAsString() }}">
     @endforeach
+    <br>
     <br>
 </div>

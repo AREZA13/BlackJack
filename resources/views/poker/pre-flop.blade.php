@@ -5,7 +5,6 @@
 /** @var Player[] $players */
 /** @var int $pot */
 /** @var array $tableCards */
-
 ?>
 @extends('poker/template')
 @section('title', 'Poker Pre Flop Round')
