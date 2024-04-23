@@ -2,7 +2,9 @@
 
 namespace App\Game\Poker;
 
+use App\Game\Card;
 use App\Game\Deck;
+use App\Game\Poker\PlayerHand\AbstractPlayerHand;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -181,5 +183,42 @@ class Poker
     {
         session()->put('poker', $this);
         session()->save();
+    }
+
+    /** @return int[] */
+    public function getWinnersId(): array
+    {
+        /** @var AbstractPlayerHand[] $playerHands */
+        $playerHands = $this->getAllPlayerHands();
+        /** @var AbstractPlayerHand[] $winners */
+        $winners[0] = $playerHands[0];
+        unset($playerHands[0]);
+
+        foreach ($playerHands as $playerHand) {
+            $compareResult = $winners[0]->compare($playerHand);
+            if ($compareResult === CompareHandResultEnum::Higher) {
+                $winners = [$playerHand];
+            } elseif ($compareResult === CompareHandResultEnum::Equal) {
+                $winners[] = $playerHand;
+            }
+        }
+
+        $winnersId = [];
+        foreach ($winners as $winner) {
+            $winnersId[] = $winner->playerId;
+        }
+
+        return $winnersId;
+    }
+
+    private function getAllPlayerHands(): array
+    {
+        $playerHands = [];
+
+        foreach ($this->players as $player) {
+            $playerHands[] = $player->getPlayerHand($this->tableCards);
+        }
+
+        return $playerHands;
     }
 }
