@@ -3,6 +3,7 @@
 namespace App\Game\Poker;
 
 use App\Game\Card;
+use App\Game\Poker\PlayerHand\AbstractPlayerHand;
 use http\Exception\RuntimeException;
 
 class Player
@@ -39,7 +40,7 @@ class Player
     public function roundBet(int $roundBet): int
     {
         $this->roundBet = $roundBet;
-        $this->stack = $this->stack - $this->roundBet;
+        $this->stack -= $this->roundBet;
         return $this->roundBet;
     }
 
@@ -56,5 +57,15 @@ class Player
     public function isFallen(): bool
     {
         return $this->isFallen;
+    }
+
+    /**
+     * @param Card[] $tableCards
+     */
+    public function getPlayerHand(array $tableCards): AbstractPlayerHand
+    {
+        $arrayOfSevenCards = array_merge($tableCards, $this->pocketCards);
+        $arrayOfSevenCards[] = $this->players[0];
+        return $arrayOfSevenCards;
     }
 }
