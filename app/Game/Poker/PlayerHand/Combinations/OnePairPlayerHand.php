@@ -1,19 +1,18 @@
 <?php
 
-namespace App\Game\Poker\PlayerHand;
+namespace App\Game\Poker\PlayerHand\Combinations;
 
-use App\Game\Card;
 use App\Game\Poker\CompareHandResultEnum;
+use App\Game\Poker\PlayerHand\AbstractPlayerHand;
 
-class TwoPairPlayerHand extends AbstractPlayerHand
+class OnePairPlayerHand extends AbstractPlayerHand
 {
     public function compare(AbstractPlayerHand $otherHand): CompareHandResultEnum
     {
         if ($otherHand instanceof self) {
-            return CompareHandResultEnum::Equal; //Todo
+            return CompareHandResultEnum::Equal;
         }
-        if ($otherHand instanceof OnePairPlayerHand
-            || $otherHand instanceof HighCardPlayerHand) {
+        if ($otherHand instanceof HighCardPlayerHand) {
             return CompareHandResultEnum::Higher;
         }
 

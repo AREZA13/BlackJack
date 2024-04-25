@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Game\Poker\PlayerHand;
+namespace App\Game\Poker\PlayerHand\Combinations;
 
-use App\Game\Card;
 use App\Game\Poker\CompareHandResultEnum;
+use App\Game\Poker\PlayerHand\AbstractPlayerHand;
 
 class HighCardPlayerHand extends AbstractPlayerHand
 {

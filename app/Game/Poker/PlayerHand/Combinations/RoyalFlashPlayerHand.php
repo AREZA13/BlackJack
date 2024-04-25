@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Game\Poker\PlayerHand;
+namespace App\Game\Poker\PlayerHand\Combinations;
 
-use App\Game\Card;
 use App\Game\Poker\CompareHandResultEnum;
+use App\Game\Poker\PlayerHand\AbstractPlayerHand;
 
 class RoyalFlashPlayerHand extends AbstractPlayerHand
 {
@@ -12,7 +12,7 @@ class RoyalFlashPlayerHand extends AbstractPlayerHand
         if ($otherHand instanceof self) {
             return CompareHandResultEnum::Equal;
         }
-
         return CompareHandResultEnum::Higher;
     }
+
 }
