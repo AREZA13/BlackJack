@@ -2,7 +2,6 @@
 
 namespace App\Game\Poker;
 
-use App\Game\Card;
 use App\Game\Deck;
 use App\Game\Poker\PlayerHand\AbstractPlayerHand;
 use Psr\Container\ContainerExceptionInterface;
@@ -77,9 +76,9 @@ class Poker
         $players = [];
         $stack = 100;
         $roundBet = 0;
-        for ($i = 1; $i < 4; $i++) {
+        for ($playerId = 0; $playerId < 3; $playerId++) {
             $pocketCards = [$deck->getOneCard(), $deck->getOneCard()];
-            $players[] = new Player($pocketCards, $stack, $roundBet);
+            $players[] = new Player($pocketCards, $stack, $playerId, $roundBet);
         }
         return $players;
     }
@@ -190,25 +189,31 @@ class Poker
     {
         /** @var AbstractPlayerHand[] $playerHands */
         $playerHands = $this->getAllPlayerHands();
-        /** @var AbstractPlayerHand[] $winners */
-        $winners[0] = $playerHands[0];
+        $playerHandsOfWinners = [0 => $playerHands[0]];
         unset($playerHands[0]);
 
         foreach ($playerHands as $playerHand) {
-            $compareResult = $winners[0]->compare($playerHand);
+            $compareResult = $playerHandsOfWinners[0]->compare($playerHand);
             if ($compareResult === CompareHandResultEnum::Higher) {
-                $winners = [$playerHand];
+                $playerHandsOfWinners = [$playerHand];
             } elseif ($compareResult === CompareHandResultEnum::Equal) {
-                $winners[] = $playerHand;
+                $playerHandsOfWinners[] = $playerHand;
             }
         }
 
         $winnersId = [];
-        foreach ($winners as $winner) {
+        foreach ($playerHandsOfWinners as $winner) {
             $winnersId[] = $winner->playerId;
         }
 
-        return $winnersId;
+        $winners = [];
+        foreach ($this->players as $player) {
+            if (in_array($player->playerId, $winnersId, true)) {
+                $winners[] = $player;
+            }
+        }
+
+        return $winners;
     }
 
     private function getAllPlayerHands(): array
