@@ -4,6 +4,7 @@ namespace App\Game\Poker;
 
 use App\Game\Card;
 use App\Game\Poker\PlayerHand\AbstractPlayerHand;
+use App\Game\Poker\PlayerHand\PlayerHandFactory;
 use http\Exception\RuntimeException;
 
 class Player
@@ -14,6 +15,7 @@ class Player
     public function __construct(
         private array $pocketCards,
         private int   $stack,
+        public readonly int $playerId,
         private int   $roundBet = 0,
         private bool  $isFallen = false,
     )
@@ -65,7 +67,12 @@ class Player
     public function getPlayerHand(array $tableCards): AbstractPlayerHand
     {
         $arrayOfSevenCards = array_merge($tableCards, $this->pocketCards);
-        $arrayOfSevenCards[] = $this->players[0];
-        return $arrayOfSevenCards;
+
+        $sevenCardsObject = new PlayerHandFactory($arrayOfSevenCards, $this->playerId);
+        return $sevenCardsObject->getPlayerHand();
+
+
     }
+
+
 }
