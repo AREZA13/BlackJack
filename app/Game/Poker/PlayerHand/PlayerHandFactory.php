@@ -32,10 +32,14 @@ class PlayerHandFactory
     private function getArrayOfSevenCards(): array
     {
         $arrayOfSevenCards = $this->arrayOfSevenCards;
+
+        $nominalsOfCards = [];
+
         foreach ($arrayOfSevenCards as $card) {
-            $sortedArray[] = $card->nominal;
+            $nominalsOfCards[] = $card->nominal;
         }
-        array_multisort($sortedArray, SORT_DESC, $arrayOfSevenCards);
+
+        array_multisort($nominalsOfCards, SORT_DESC, $arrayOfSevenCards);
         return $arrayOfSevenCards;
     }
 
@@ -47,7 +51,7 @@ class PlayerHandFactory
         }
 
         try {
-            return $this->getStraightFlush();
+            return $this->getFlushStraight();
         } catch (RuntimeException $e) {
         }
 
@@ -91,109 +95,95 @@ class PlayerHandFactory
 
     private function getRoyalFlash(): RoyalFlashPlayerHand
     {
-        if ($this->isNominalPresentInAllCards(Nominal::Ace)) {
-            $cardsFlash = $this->getFlashArray();
-            if (
-                $this->isNominalPresent(Nominal::King, $cardsFlash)
-                && $this->isNominalPresent(Nominal::Queen, $cardsFlash)
-                && $this->isNominalPresent(Nominal::Jack, $cardsFlash)
-                && $this->isNominalPresent(Nominal::Ten, $cardsFlash)
-            ) {
+        $cardsFlash = $this->getFlashArray();
 
-                return new RoyalFlashPlayerHand();
-            }
+        if ($this->doesStreetSpecificExist($cardsFlash, Nominal::Ace, Nominal::King, Nominal::Queen, Nominal::Jack, Nominal::Ten)
+        ) {
+            return $this->getRoyalFlashSpecific($cardsFlash);
         }
+
         throw new RuntimeException('');
     }
 
-    private function getStraightFlush(): StraightFlushPlayerHand
+    private function getFlushStraight(): StraightFlushPlayerHand
     {
+        /** @var array<int, Nominal[]> $allPossibleStreets */
+        $allPossibleStreets =
+            [
+                [Nominal::Ace, Nominal::King, Nominal::Queen, Nominal::Jack, Nominal::Ten],
+                [Nominal::King, Nominal::Queen, Nominal::Jack, Nominal::Ten, Nominal::Nine],
+                [Nominal::Jack, Nominal::Ten, Nominal::Nine, Nominal::Eight, Nominal::Seven],
+                [Nominal::Ten, Nominal::Nine, Nominal::Eight, Nominal::Seven, Nominal::Six],
+                [Nominal::Nine, Nominal::Eight, Nominal::Seven, Nominal::Six, Nominal::Five],
+                [Nominal::Eight, Nominal::Seven, Nominal::Six, Nominal::Five, Nominal::Four],
+                [Nominal::Seven, Nominal::Six, Nominal::Five, Nominal::Four, Nominal::Three],
+                [Nominal::Six, Nominal::Five, Nominal::Four, Nominal::Three, Nominal::Two],
+                [Nominal::Five, Nominal::Four, Nominal::Three, Nominal::Two, Nominal::Ace],
+            ];
 
+        foreach ($allPossibleStreets as [$first, $second, $third, $fourth, $fifth]) {
+            if ($this->doesStreetSpecificExistInAllCards($first, $second, $third, $fourth, $fifth)
+            ) {
+                return $this->getStraightFlashSpecific($allPossibleStreets, $first, $second, $third, $fourth, $fifth);
+            }
+        }
+
+        throw new RuntimeException('');
     }
 
     private function getFourOfAKind(): FourOfAkindPlayerHand
     {
-        $fourOfAKindArray = $this->countForNominal(4);
-        $diffArray = array_diff($this->arrayOfSevenCards, $fourOfAKindArray);
-        $fourOfAKindArray[] = $diffArray[0];
-        return new FourOfAkindPlayerHand($fourOfAKindArray, $this->playerId);
+        $fourOfAKindArray = $this->getSameNominalsFromAllCards(4);
+        $otherCards = array_diff($this->arrayOfSevenCards, $fourOfAKindArray);
+        $sortedOtherCards = $this->getSortedArrayFromCardsDescending($otherCards);
+        $fiveCards = array_merge($fourOfAKindArray, $sortedOtherCards[0]);
+        return new FourOfAkindPlayerHand($fiveCards, $this->playerId);
 
     }
 
     private function getFullHouse(): FullHousePlayerHand
     {
-        /**
-         * @var Card $card
-         */
-        $arrayOfNumbers = [];
-        foreach ($this->arrayOfSevenCards as $card->nominal) {
-            $arrayOfNumbers[] = $card->nominal;
-        }
-        $counts = array_count_values($arrayOfNumbers);
-        $keys = array_keys($counts);
-        $triple = $keys[0];
-        $pair = $keys[1];
 
-        $full_house = [];
-        if ($counts[$triple] >= 3 && $counts[$pair] >= 2) {
-            array_push($full_house, $triple, $triple, $triple, $pair, $pair);
-        }
-
-        return new FullHousePlayerHand($full_house, $this->playerId);
+        $allCards = $this->arrayOfSevenCards;
+        $threeCards = $this->getCardsOfSameNominalFromCards($allCards, 3);
+        $twoCards = $this->getCardsOfSameNominalFromCards($allCards, 2);
+        return new FullHousePlayerHand($threeCards, $twoCards, $this->playerId);
     }
 
     private function getFlush(): FlashPlayerHand
     {
         $getProbableFlashArray = $this->getFlashArray();
-        $arrayOfSameSuit = $this->getArrayOfSevenCards($getProbableFlashArray);
-        array_pop($arrayOfSameSuit);
-        array_pop($arrayOfSameSuit);
+        $arrayOfSameSuit = $this->getSortedArrayFromCardsDescending($getProbableFlashArray);
+        array_slice($arrayOfSameSuit, 5);
         return new FlashPlayerHand($arrayOfSameSuit, $this->playerId);
     }
 
     private function getStraight(): StraightPlayerHand
     {
-        if (
-            $this->isNominalPresentInAllCards(Nominal::Ace)
-            && $this->isNominalPresentInAllCards(Nominal::Two)
-            && $this->isNominalPresentInAllCards(Nominal::Three)
-            && $this->isNominalPresentInAllCards(Nominal::Four)
-            && $this->isNominalPresentInAllCards(Nominal::Five)
-        ) {
-            {
-                $fiveCards = [
-                    $this->getNominalFromAllCards(Nominal::Ace),
-                    $this->getNominalFromAllCards(Nominal::Two),
-                    $this->getNominalFromAllCards(Nominal::Three),
-                    $this->getNominalFromAllCards(Nominal::Four),
-                    $this->getNominalFromAllCards(Nominal::Five),
-                ];
-                return new StraightPlayerHand($fiveCards, $this->playerId);
+        /** @var array<int, Nominal[]> $allPossibleStreets */
+        $allPossibleStreets =
+            [
+                [Nominal::Ace, Nominal::King, Nominal::Queen, Nominal::Jack, Nominal::Ten],
+                [Nominal::King, Nominal::Queen, Nominal::Jack, Nominal::Ten, Nominal::Nine],
+                [Nominal::Jack, Nominal::Ten, Nominal::Nine, Nominal::Eight, Nominal::Seven],
+                [Nominal::Ten, Nominal::Nine, Nominal::Eight, Nominal::Seven, Nominal::Six],
+                [Nominal::Six, Nominal::Five, Nominal::Four, Nominal::Three, Nominal::Two],
+                [Nominal::Five, Nominal::Four, Nominal::Three, Nominal::Two, Nominal::Ace],
+            ];
+
+        foreach ($allPossibleStreets as [$first, $second, $third, $fourth, $fifth]) {
+            if ($this->doesStreetSpecificExistInAllCards($first, $second, $third, $fourth, $fifth)
+            ) {
+                return $this->getStraightSpecificFromAllCards($first, $second, $third, $fourth, $fifth);
             }
         }
 
-        if (
-            $this->isNominalPresentInAllCards(Nominal::Ace)
-            && $this->isNominalPresentInAllCards(Nominal::King)
-            && $this->isNominalPresentInAllCards(Nominal::Queen)
-            && $this->isNominalPresentInAllCards(Nominal::Jack)
-            && $this->isNominalPresentInAllCards(Nominal::Ten)
-        ) {
-            $fiveCards = [
-                $this->getNominalFromAllCards(Nominal::Ace),
-                $this->getNominalFromAllCards(Nominal::King),
-                $this->getNominalFromAllCards(Nominal::Queen),
-                $this->getNominalFromAllCards(Nominal::Jack),
-                $this->getNominalFromAllCards(Nominal::Ten),
-            ];
-            return new StraightPlayerHand ($fiveCards, $this->playerId);
-        }
         throw new RuntimeException('');
     }
 
     private function getThreeOfAKind(): ThreeOfAKindPlayerHand
     {
-        $threeOfAKindArray = $this->countForNominal(3);
+        $threeOfAKindArray = $this->getSameNominalsFromAllCards(3);
         $diffArray = array_diff($this->arrayOfSevenCards, $threeOfAKindArray);
         $threeOfAKindArray[] = $diffArray[0];
         $threeOfAKindArray[] = $diffArray[1];
@@ -276,7 +266,108 @@ class PlayerHandFactory
     }
 
 
-    //middle methods
+    /** @return Card[] */
+    private function getCardsOfSameNominalFromCards(array &$allCards, int $countNeeded): array
+    {
+        foreach (Nominal::cases() as $nominal) {
+            $returnCards = [];
+
+            foreach ($allCards as $originalKey => $card) {
+                if ($card->nominal === $nominal) {
+                    $returnCards[$originalKey] = $card;
+                }
+            }
+
+            if (count($returnCards) === $countNeeded) {
+                foreach ($returnCards as $originalKey => $card) {
+                    unset($allCards[$originalKey]);
+                    return $returnCards;
+                }
+            }
+        }
+
+        throw new RuntimeException('');
+    }
+
+    private function getSortedArrayFromCardsDescending(array $cards): array
+    {
+        $return = [];
+
+        $allNominals = Nominal::cases();
+        foreach (array_reverse($allNominals) as $nominal) {
+            foreach ($cards as $card) {
+                if ($card->nominal === $nominal) {
+                    $return[] = $card;
+                }
+            }
+        }
+
+        return $return;
+    }
+
+    private function doesStreetSpecificExist(array $cards, Nominal $first, Nominal $second, Nominal $third, Nominal $fourth, Nominal $fifth): bool
+    {
+        return (
+            $this->isNominalPresent($first, $cards)
+            && $this->isNominalPresent($second, $cards)
+            && $this->isNominalPresent($third, $cards)
+            && $this->isNominalPresent($fourth, $cards)
+            && $this->isNominalPresent($fifth, $cards)
+        );
+    }
+
+    private function doesStreetSpecificExistInAllCards(Nominal $first, Nominal $second, Nominal $third, Nominal $fourth, Nominal $fifth): bool
+    {
+        return (
+            $this->isNominalPresentInAllCards($first)
+            && $this->isNominalPresentInAllCards($second)
+            && $this->isNominalPresentInAllCards($third)
+            && $this->isNominalPresentInAllCards($fourth)
+            && $this->isNominalPresentInAllCards($fifth)
+        );
+    }
+
+    private function getRoyalFlashSpecific(array $cards): RoyalFlashPlayerHand
+    {
+        return new RoyalFlashPlayerHand (
+            [
+                $this->getNominalFromCards(Nominal::Ace, $cards),
+                $this->getNominalFromCards(Nominal::King, $cards),
+                $this->getNominalFromCards(Nominal::Queen, $cards),
+                $this->getNominalFromCards(Nominal::Jack, $cards),
+                $this->getNominalFromCards(Nominal::Ten, $cards),
+            ],
+            $this->playerId);
+    }
+
+    private function getStraightFlashSpecific(array $cards, Nominal $first, Nominal $second, Nominal $third, Nominal $fourth, Nominal $fifth): StraightFlushPlayerHand
+    {
+        return new StraightFlushPlayerHand (
+            [
+                $this->getNominalFromCards($first, $cards),
+                $this->getNominalFromCards($second, $cards),
+                $this->getNominalFromCards($third, $cards),
+                $this->getNominalFromCards($fourth, $cards),
+                $this->getNominalFromCards($fifth, $cards),
+            ],
+            $this->playerId);
+    }
+
+    private function getStraightSpecificFromAllCards(Nominal $first, Nominal $second, Nominal $third, Nominal $fourth, Nominal $fifth): StraightPlayerHand
+    {
+        return new StraightPlayerHand (
+            [
+                $this->getNominalFromAllCards($first),
+                $this->getNominalFromAllCards($second),
+                $this->getNominalFromAllCards($third),
+                $this->getNominalFromAllCards($fourth),
+                $this->getNominalFromAllCards($fifth),
+            ],
+            $this->playerId);
+    }
+
+
+    /** @return Card[] */
     private function getFlashArray(): array
     {
         foreach (Suit::cases() as $suit) {
@@ -286,13 +377,14 @@ class PlayerHandFactory
                     $arraySameSuit[] = $card->suit;
                 }
             }
+
             if (count($arraySameSuit) >= 5) {
                 return $arraySameSuit;
             }
         }
+
         throw new RuntimeException('');
     }
-
 
 //common methods
     private function countForSuit($countNumber): array
@@ -311,19 +403,22 @@ class PlayerHandFactory
         throw new RuntimeException('');
     }
 
-    private function countForNominal($countNumber): array
+    private function getSameNominalsFromAllCards($countNumber): array
     {
         foreach (Nominal::cases() as $nominal) {
             $arraySameSuit = [];
+
             foreach ($this->arrayOfSevenCards as $card) {
                 if ($card->nominal === $nominal) {
-                    $arraySameSuit[] = $card->suit;
+                    $arraySameSuit[] = $card;
                 }
             }
+
             if (count($arraySameSuit) === $countNumber) {
                 return $arraySameSuit;
             }
         }
+
         throw new RuntimeException('');
     }
 
@@ -344,7 +439,13 @@ class PlayerHandFactory
 
     private function getNominalFromAllCards(Nominal $nominal): Card
     {
-        foreach ($this->arrayOfSevenCards as $card) {
+        return $this->getNominalFromCards($nominal, $this->arrayOfSevenCards);
+    }
+
+    /** @param Card[] $cards */
+    private function getNominalFromCards(Nominal $nominal, array $cards): Card
+    {
+        foreach ($cards as $card) {
             if ($card->nominal === $nominal) {
                 return $card;
             }
