@@ -7,40 +7,11 @@
 /** @var array $tableCards */
 ?>
 @extends('poker/template')
-@section('content')
-    <style>
-        body {
-            background-image: url('../../images/front/bgForFinishGame.jpg');
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            background-size: 100% 100%;
-        }
-    </style>
+@section('title', 'All in Final Round')
+@include('poker/components/background')
 
-    <div style="text-align: center;">
-        <button type="button" class="btn btn-primary btn-lg" disabled>Total Pot {{$pot}}</button>
-    </div>
-    <br>
-    <div style="text-align: center;">
-        @foreach($players as $player)
-            <div>
-                @foreach($player->getPocketCards() as $card)
-                    <img src="{{ $card->getAsImagePath() }}" alt="{{ $card->getAsString() }}">
-                @endforeach
-            </div>
-        @endforeach
-        <br>
-        @foreach($tableCards as $tableCard)
-            <img src="{{ $tableCard->getAsImagePath() }}" alt="{{ $tableCard->getAsString() }}">
-        @endforeach
-        <br>
-        <br>
-        <div style="text-align: center;">
-            <a href="{{ route('poker-game-delete') }}">
-                <button type="button" class="btn btn-warning">Start Over</button>
-            </a>
-            <a href="{{ route('choose-game') }}">
-                <button type="button" class="btn btn-dark">Switch game</button>
-            </a>
-        </div>
+@section('content')
+    @include('poker/components/total-pot-button')
+    @include('poker/components/show-result-cards')
+    @include('poker/components/startover-switch-buttons')
 @endsection
