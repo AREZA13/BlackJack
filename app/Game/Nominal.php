@@ -4,7 +4,6 @@ namespace App\Game;
 
 enum Nominal
 {
-    case Ace;
     case Two;
     case Three;
     case Four;
@@ -17,6 +16,7 @@ enum Nominal
     case Jack;
     case Queen;
     case King;
+    case Ace;
 
     public function getAsOneLetter(): string
     {
