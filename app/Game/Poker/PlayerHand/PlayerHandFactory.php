@@ -14,7 +14,7 @@ use App\Game\Poker\PlayerHand\Combinations\StraightPlayerHand;
 use App\Game\Poker\PlayerHand\Combinations\ThreeOfAKindPlayerHand;
 use App\Game\Poker\PlayerHand\Combinations\TwoPairPlayerHand;
 use App\Game\Suit;
-use http\Exception\RuntimeException;
+use RuntimeException;
 
 class PlayerHandFactory
 {
@@ -36,7 +36,7 @@ class PlayerHandFactory
         $nominalsOfCards = [];
 
         foreach ($arrayOfSevenCards as $card) {
-            $nominalsOfCards[] = $card->nominal;
+            $nominalsOfCards[] = $card;
         }
 
         array_multisort($nominalsOfCards, SORT_DESC, $arrayOfSevenCards);
@@ -192,30 +192,34 @@ class PlayerHandFactory
 
     private function getTwoPairs(): TwoPairPlayerHand
     {
-        /**
-         * @var Card $card
-         */
-        $arrayOfNumbers = [];
-        foreach ($this->arrayOfSevenCards as $card->nominal) {
-            $arrayOfNumbers[] = $card->nominal;
-        }
-        rsort($arrayOfNumbers);
-        $pairs = [];
+        $sortedCards = $this->getSortedArrayFromCardsDescending($this->arrayOfSevenCards);
+        $highestPair = $this->getPairFromCards($sortedCards);
+        $lowestPair = $this->getPairFromCards($sortedCards);
+        $highestCard = current($sortedCards);
+        return new TwoPairPlayerHand($highestPair, $lowestPair, $highestCard, $this->playerId);
+    }
 
-        for ($i = 0; $i < count($arrayOfNumbers) - 1; $i++) {
-            if ($arrayOfNumbers[$i] == $arrayOfNumbers[$i + 1]) {
-                $pairs[] = $arrayOfNumbers[$i];
-                $i++;
+    private function getPairFromCards(array &$originalCardArray): array
+    {
+        foreach (Nominal::cases() as $nominal) {
+            $returnCards = [];
+
+            foreach ($originalCardArray as $originalKey => $card) {
+                if ($card->nominal === $nominal) {
+                    $returnCards[$originalKey] = $card;
+                }
+            }
+
+            if (count($returnCards) === 2) {
+                foreach ($returnCards as $originalKey => $card) {
+                    unset($originalCardArray[$originalKey]);
+                }
+
+                return $returnCards;
             }
         }
 
-        $highest_pairs = [];
-        if (count($pairs) >= 2) {
-            $highest_pairs = array_slice($pairs, 0, 2);
-        }
-
-        return new TwoPairPlayerHand($highest_pairs, $this->playerId);
-
+        throw new RuntimeException('');
     }
 
     private function getOnePair(): OnePairPlayerHand
@@ -224,8 +228,8 @@ class PlayerHandFactory
          * @var Card $card
          */
         $arrayOfNumbers = [];
-        foreach ($this->arrayOfSevenCards as $card->nominal) {
-            $arrayOfNumbers[] = $card->nominal;
+        foreach ($this->arrayOfSevenCards as $card) {
+            $arrayOfNumbers[] = $card;
         }
         rsort($arrayOfNumbers);
         $pair = [];
@@ -366,7 +370,6 @@ class PlayerHandFactory
             $this->playerId);
     }
 
-
     /** @return Card[] */
     private function getFlashArray(): array
     {
@@ -374,7 +377,7 @@ class PlayerHandFactory
             $arraySameSuit = [];
             foreach ($this->arrayOfSevenCards as $card) {
                 if ($card->suit === $suit) {
-                    $arraySameSuit[] = $card->suit;
+                    $arraySameSuit[] = $card;
                 }
             }
 
@@ -393,7 +396,7 @@ class PlayerHandFactory
             $arraySameSuit = [];
             foreach ($this->arrayOfSevenCards as $card) {
                 if ($card->suit === $suit) {
-                    $arraySameSuit[] = $card->suit;
+                    $arraySameSuit[] = $card;
                 }
             }
             if (count($arraySameSuit) === $countNumber) {
