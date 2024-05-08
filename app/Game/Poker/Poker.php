@@ -103,27 +103,21 @@ class Poker
         }
     }
 
-    /**
-     * @param Deck $deck
-     * @return array
-     */
-    public function getFlopCards(Deck $deck): array
+    public function getFlopCards(Deck $deck): void
     {
         $this->tableCards = [$deck->getOneCard(), $deck->getOneCard(), $deck->getOneCard()];
-        return $this->tableCards;
     }
 
-    public function getOneCard(Deck $deck): array
+    public function addOneCardFromDeckToTableCards(Deck $deck): void
     {
         $this->tableCards[] = $deck->getOneCard();
-        return $this->tableCards;
     }
 
     public function dealTableCardsIfLessThanFive(): void
     {
         if (count($this->tableCards) !== 5) {
             for ($i = count($this->tableCards); $i < 5; $i++) {
-                $this->tableCards = $this->getOneCard($this->deck);
+                $this->addOneCardFromDeckToTableCards($this->deck);
             }
         }
     }
@@ -134,9 +128,10 @@ class Poker
             $this->pot += $player->getStack();
         }
         $this->dealTableCardsIfLessThanFive();
+        $this->stage = Stage::Results;
     }
 
-    public function checkCurrentStage($previousStage)
+    public function executeCurrentStageAndSetNextStage($previousStage): void
     {
         if ($previousStage === Stage::PreFlop) {
             $this->getFlopCards($this->getDeck());
@@ -144,27 +139,25 @@ class Poker
         }
 
         if ($previousStage === Stage::Flop) {
-            $this->getOneCard($this->getDeck());
+            $this->addOneCardFromDeckToTableCards($this->getDeck());
             $this->stage = Stage::Turn;
         }
 
         if ($previousStage === Stage::Turn) {
-            $this->getOneCard($this->getDeck());
+            $this->addOneCardFromDeckToTableCards($this->getDeck());
             $this->stage = Stage::River;
         }
 
         if ($previousStage === Stage::River) {
             $this->stage = Stage::Results;
         }
-
-        return $previousStage;
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public static function checkPreviousStageAndReturnView(): self
+    public static function getPokerFromSessionOrMakeNew(): self
     {
         $poker = session()->get('poker');
 
@@ -172,7 +165,7 @@ class Poker
             return $poker;
         }
 
-        $poker = Poker::createNewGame();
+        $poker = self::createNewGame();
         $poker->savePokerInSession();
         return $poker;
     }
@@ -184,8 +177,8 @@ class Poker
         session()->save();
     }
 
-    /** @return int[] */
-    public function getWinnersId(): array
+    /** @return Player[] */
+    public function getWinnerPlayers(): array
     {
         /** @var AbstractPlayerHand[] $playerHands */
         $playerHands = $this->getAllPlayerHands();
