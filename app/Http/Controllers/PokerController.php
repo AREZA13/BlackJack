@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Game\Poker\NoPokerInSessionException;
 use App\Game\Poker\Poker;
+use App\Game\Poker\Stage;
 use App\Http\Requests\RoundBetRequest;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\View\Factory;
@@ -28,7 +29,16 @@ class PokerController extends Controller
      */
     public function get(): Factory|\Illuminate\Foundation\Application|View|Application
     {
-        $poker = Poker::checkPreviousStageAndReturnView();
+        $poker = Poker::getPokerFromSessionOrMakeNew();
+
+        if ($poker->stage === Stage::Results) {
+            return view($poker->getStage()->returnAsView(), [
+                'players' => $poker->getPlayers(),
+                'pot' => $poker->getPot(),
+                'tableCards' => $poker->getTableCards(),
+                'winnerPlayers' => $poker->getWinnerPlayers(),
+            ]);
+        }
 
         return view($poker->getStage()->returnAsView(), [
             'players' => $poker->getPlayers(),
@@ -49,7 +59,7 @@ class PokerController extends Controller
         $request->validated();
         $bet = $request['bet'];
         $poker->roundBetting($bet);
-        $poker->checkCurrentStage($previousStage);
+        $poker->executeCurrentStageAndSetNextStage($previousStage);
         $poker->savePokerInSession();
         return redirect()->back();
     }
@@ -65,15 +75,13 @@ class PokerController extends Controller
      * @throws NotFoundExceptionInterface
      * @throws NoPokerInSessionException
      */
-    public function allInBet(): Factory|\Illuminate\Foundation\Application|View|Application
+    public function allInBet(): RedirectResponse
     {
         $poker = $this->getPokerFromSession();
         $poker->allInBet();
         $poker->savePokerInSession();
-        return view("poker/all-in-bet", [
-            'players' => $poker->getPlayers(),
-            'pot' => $poker->getPot(),
-            'tableCards' => $poker->getTableCards(),]);
+
+        return redirect()->route("pokerGet");
     }
 
     /**
