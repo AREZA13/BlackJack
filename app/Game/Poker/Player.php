@@ -13,11 +13,11 @@ class Player
      * @param Card[] $pocketCards
      */
     public function __construct(
-        private array $pocketCards,
-        private int   $stack,
+        private array       $pocketCards,
+        private int         $stack,
         public readonly int $playerId,
-        private int   $roundBet = 0,
-        private bool  $isFallen = false,
+        private int         $roundBet = 0,
+        private bool        $isFallen = false,
     )
     {
     }
@@ -31,6 +31,12 @@ class Player
     public function getStack(): int
     {
         return $this->stack;
+    }
+
+
+    public function getPlayerId(): int
+    {
+        return $this->playerId;
     }
 
     public function randomRoundBet(): int
@@ -70,9 +76,5 @@ class Player
 
         $sevenCardsObject = new PlayerHandFactory($arrayOfSevenCards, $this->playerId);
         return $sevenCardsObject->getPlayerHand();
-
-
     }
-
-
 }
