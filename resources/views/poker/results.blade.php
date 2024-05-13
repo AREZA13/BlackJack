@@ -16,8 +16,9 @@
 
 @section('content')
     @include('poker/components/total-pot-button')
+    @include('poker/components/get-winner')
     @include('poker/components/show-result-cards')
     @include('poker/components/startover-switch-buttons')
-    @include('poker/components/get-winner')
+
 @endsection
 
