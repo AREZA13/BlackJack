@@ -6,6 +6,7 @@
 /** @var Player[] $players */
 /** @var int $pot */
 /** @var array $tableCards */
+/** @var Player[] $winnerPlayers */
 ?>
 
 @extends('poker/template')
@@ -17,4 +18,6 @@
     @include('poker/components/total-pot-button')
     @include('poker/components/show-result-cards')
     @include('poker/components/startover-switch-buttons')
+    @include('poker/components/get-winner')
 @endsection
+

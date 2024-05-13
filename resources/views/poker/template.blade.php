@@ -9,10 +9,9 @@
 
 <body>
 @if ($errors->any())
-    <div class="p-4 mb-0 text-sm text-red-800 text-center font-medium bg-red-50 dark:bg-gray-900 dark:text-red-400"
-         role="alert">
+    <div class="alert alert-danger">
         @foreach ($errors->all() as $error)
-            {{ 'D`oh!!!' . $error }}
+            <li>{{ 'D`oh!!!' . $error }}</li>
         @endforeach
     </div>
 @endif
