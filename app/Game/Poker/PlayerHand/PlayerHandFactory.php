@@ -4,6 +4,7 @@ namespace App\Game\Poker\PlayerHand;
 
 use App\Game\Card;
 use App\Game\Nominal;
+use App\Game\Poker\PlayerHand\Combinations\FlashPlayerHand;
 use App\Game\Poker\PlayerHand\Combinations\FourOfAkindPlayerHand;
 use App\Game\Poker\PlayerHand\Combinations\FullHousePlayerHand;
 use App\Game\Poker\PlayerHand\Combinations\HighCardPlayerHand;
@@ -32,9 +33,7 @@ class PlayerHandFactory
     private function getArrayOfSevenCards(): array
     {
         $arrayOfSevenCards = $this->arrayOfSevenCards;
-
         $nominalsOfCards = [];
-
         foreach ($arrayOfSevenCards as $card) {
             $nominalsOfCards[] = $card;
         }
@@ -138,12 +137,10 @@ class PlayerHandFactory
         $sortedOtherCards = $this->getSortedArrayFromCardsDescending($otherCards);
         $fiveCards = array_merge($fourOfAKindArray, $sortedOtherCards[0]);
         return new FourOfAkindPlayerHand($fiveCards, $this->playerId);
-
     }
 
     private function getFullHouse(): FullHousePlayerHand
     {
-
         $allCards = $this->arrayOfSevenCards;
         $threeCards = $this->getCardsOfSameNominalFromCards($allCards, 3);
         $twoCards = $this->getCardsOfSameNominalFromCards($allCards, 2);
@@ -224,30 +221,10 @@ class PlayerHandFactory
 
     private function getOnePair(): OnePairPlayerHand
     {
-        /**
-         * @var Card $card
-         */
-        $arrayOfNumbers = [];
-        foreach ($this->arrayOfSevenCards as $card) {
-            $arrayOfNumbers[] = $card;
-        }
-        rsort($arrayOfNumbers);
-        $pair = [];
-
-        for ($i = 0; $i < count($arrayOfNumbers) - 1; $i++) {
-            if ($arrayOfNumbers[$i] == $arrayOfNumbers[$i + 1]) {
-                $pair[] = $arrayOfNumbers[$i];
-                $i++;
-            }
-        }
-
-        $highest_pair = [];
-        if (count($pair) >= 1) {
-            $highest_pair = array_slice($pair, 0, 1);
-        }
-
-        return new OnePairPlayerHand($highest_pair, $this->playerId);
-
+        $allCards = $this->getSortedArrayFromCardsDescending($this->arrayOfSevenCards);
+        $pair = $this->getCardsOfSameNominalFromCards($allCards, 2);
+        $otherThreeCards = array_slice($allCards, 3);
+        return new OnePairPlayerHand($pair, $otherThreeCards, $this->playerId);
     }
 
     private function getHighestCard(): HighCardPlayerHand
