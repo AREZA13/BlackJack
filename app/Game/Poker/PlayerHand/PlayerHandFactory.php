@@ -123,7 +123,7 @@ class PlayerHandFactory
         foreach ($allPossibleStreets as [$first, $second, $third, $fourth, $fifth]) {
             if ($this->doesStreetSpecificExistInAllCards($first, $second, $third, $fourth, $fifth)
             ) {
-                return $this->getStraightFlashSpecific($allPossibleStreets, $first, $second, $third, $fourth, $fifth);
+                return $this->getStraightFlashSpecific($this->arrayOfSevenCards, $first, $second, $third, $fourth, $fifth);
             }
         }
 
@@ -181,10 +181,10 @@ class PlayerHandFactory
     private function getThreeOfAKind(): ThreeOfAKindPlayerHand
     {
         $threeOfAKindArray = $this->getSameNominalsFromAllCards(3);
-        $diffArray = array_diff($this->arrayOfSevenCards, $threeOfAKindArray);
-        $threeOfAKindArray[] = $diffArray[0];
-        $threeOfAKindArray[] = $diffArray[1];
-        return new ThreeOfAKindPlayerHand($threeOfAKindArray, $this->playerId);
+        $diffArrayNotSorted = array_diff($this->arrayOfSevenCards, $threeOfAKindArray);
+        $diffArraySorted = $this->getSortedArrayFromCardsDescending($diffArrayNotSorted);
+        $otherTwoCards = array_slice($diffArraySorted, 2);
+        return new ThreeOfAKindPlayerHand($threeOfAKindArray, $otherTwoCards, $this->playerId);
     }
 
     private function getTwoPairs(): TwoPairPlayerHand
@@ -223,27 +223,15 @@ class PlayerHandFactory
     {
         $allCards = $this->getSortedArrayFromCardsDescending($this->arrayOfSevenCards);
         $pair = $this->getCardsOfSameNominalFromCards($allCards, 2);
-        $otherThreeCards = array_slice($allCards, 3);
+        $otherThreeCards = array_slice($allCards, 0, 3);
         return new OnePairPlayerHand($pair, $otherThreeCards, $this->playerId);
     }
 
     private function getHighestCard(): HighCardPlayerHand
     {
-        /**
-         * @var Nominal $nominal
-         */
-        $arrayOfNumbers = [];
-        foreach ($this->arrayOfSevenCards as $card) {
-            $arrayOfNumbers[] = $card->nominal->getAsNumber();
-        }
-        $max_number = max($arrayOfNumbers);
-        array_pop($arrayOfNumbers);
-        array_pop($arrayOfNumbers);
-        unset($arrayOfNumbers[0]);
-        array_unshift($arrayOfNumbers, $max_number);
-
-
-        return new HighCardPlayerHand($arrayOfNumbers, $this->playerId);
+        $sortedCards = $this->getSortedArrayFromCardsDescending($this->arrayOfSevenCards);
+        $highestCards = array_slice($sortedCards, 0,5);
+        return new HighCardPlayerHand($highestCards, $this->playerId);
     }
 
 
@@ -262,8 +250,9 @@ class PlayerHandFactory
             if (count($returnCards) === $countNeeded) {
                 foreach ($returnCards as $originalKey => $card) {
                     unset($allCards[$originalKey]);
-                    return $returnCards;
                 }
+
+                return $returnCards;
             }
         }
 

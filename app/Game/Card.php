@@ -46,4 +46,9 @@ readonly class Card
             Nominal::Ten, Nominal::Jack, Nominal::Queen, Nominal::King => 10,
         };
     }
+
+    public function __toString(): string
+    {
+        return $this->getAsTwoLettersString();
+    }
 }
