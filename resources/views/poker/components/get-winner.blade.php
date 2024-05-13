@@ -5,18 +5,16 @@
 ?>
 <div style="text-align: center;">
     <div style="text-align: center;">
-        <br>
         @foreach($winnerPlayers as $winnerPlayer)
-            <span>{{ $winnerPlayer->getPlayerId() }}</span>
+            <br>
+            <br>
+            <button type="button" class="btn btn-primary btn-lg" disabled>Winner
+                <span>{{ $winnerPlayer->getPlayerId() }}</span></button>
+            <br>
+            <br>
             @foreach($winnerPlayer->getPlayerHand($tableCards)->getCards() as $winnerCard)
-                <br>
-                <br>
                 <img src="{{ $winnerCard->getAsImagePath() }}" alt="{{ $winnerCard->getAsImagePath() }}">
-                <br>
-                <br>
             @endforeach
         @endforeach
-        <br>
     </div>
-    <br>
 </div>
