@@ -73,8 +73,6 @@ class Player
     public function getPlayerHand(array $tableCards): AbstractPlayerHand
     {
         $arrayOfSevenCards = array_merge($tableCards, $this->pocketCards);
-
-        $sevenCardsObject = new PlayerHandFactory($arrayOfSevenCards, $this->playerId);
-        return $sevenCardsObject->getPlayerHand();
+        return (new PlayerHandFactory($arrayOfSevenCards, $this->playerId))->getPlayerHand();
     }
 }
