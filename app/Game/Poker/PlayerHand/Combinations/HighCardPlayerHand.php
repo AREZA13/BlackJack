@@ -12,7 +12,6 @@ class HighCardPlayerHand extends AbstractPlayerHand
         if ($otherHand instanceof self) {
             return CompareHandResultEnum::Equal;
         }
-
         return CompareHandResultEnum::Lower;
     }
 }
